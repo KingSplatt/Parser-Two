@@ -1,8 +1,9 @@
 public class miEscaner {
     private String tokens[];
-    private final String reservadas[] = { "int", "string", "while", "do", "print" };
-    private final String operadores[] = { "+", "=" };
+    private final String reservadas[] = { "int", "string", "dou", "IF", "ELSE", "print" };
+    private final String operadores[] = { "+", "=", "-", "*", "/" };
     private final String delimitador = ";";
+    private final String corchetes[] = { "{", "}" };
     private int indice;
     private String tokenActual = "";
     private String tipoToken = "";
@@ -73,11 +74,35 @@ public class miEscaner {
                 setTipoToken(delimitador);
             }
         }
+        // Verificar si es un corchete
+        if (!tokenValido) {
+            for (String corchete : corchetes) {
+                if (this.tokenActual.equals(corchete)) {
+                    tokenValido = true;
+                    setTipoToken("corchete");
+                    break;
+                }
+            }
+        }
         // Verificar si es un numero
         if (!tokenValido) {
             if (this.tokenActual.matches("[0-9]+")) {
                 tokenValido = true;
                 setTipoToken("num");
+            }
+        }
+        // verifica si es un numero positivo
+        if (!tokenValido) {
+            if (this.tokenActual.matches("[1-9]+")) {
+                tokenValido = true;
+                setTipoToken("numP");
+            }
+        }
+        // verifica si es un numero fraccionario
+        if (!tokenValido) {
+            if (this.tokenActual.matches("[0-9]+\\.[0-9]+")) {
+                tokenValido = true;
+                setTipoToken("FRACC");
             }
         }
         // Verificar si es un identificador

@@ -6,11 +6,14 @@ public class Parser extends IOException {
     private final String M_id = "id",
             M_int = "int",
             M_string = "string",
-            M_while = "while",
-            M_do = "do",
+            M_dou = "dou",
+            M_IF = "IF",
+            M_ELSE = "ELSE",
             M_print = "print",
             M_operador = "+",
             M_igual = "=";
+    String M_corchetes[] = { "{", "}" };
+    String Operadores[] = { "+", "-", "*", "/" };
 
     public Parser(String codigo) throws Exception {
         try {
@@ -91,12 +94,19 @@ public class Parser extends IOException {
 
     public void S() throws Exception {
         try {
-            if (this.token.equals(M_while)) {
-                comer(M_while);
+            if (this.token.equals(M_IF)) {
+                comer(M_IF);
                 E();
-                comer(M_do);
+                comer(M_corchetes[0]);
                 S();
-            } else if (this.token.equals(M_id)) {
+                comer(M_corchetes[1]);
+                if (this.token.equals(M_ELSE)) {
+                    comer(M_ELSE);
+                    comer(M_corchetes[0]);
+                    S();
+                    comer(M_corchetes[1]);
+                }
+            } else if (this.token.equals(M_id)) { // ME QUEDE AQUI PARA PRODUCCION DE UN ID = OPER
                 comer(M_id);
                 if (this.token.equals("EOF")) {
                     return;
