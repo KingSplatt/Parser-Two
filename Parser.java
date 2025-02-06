@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Parser extends IOException {
     private String token;
@@ -12,8 +13,9 @@ public class Parser extends IOException {
             M_print = "print",
             M_operador = "+",
             M_igual = "=";
-    String M_corchetes[] = { "{", "}" };
-    String Operadores[] = { "+", "-", "*", "/" };
+    private String M_corchetes[] = { "{", "}" };
+    private String Operadores[] = { "+", "-", "*", "/" };
+    private ArrayList<String> tokens = new ArrayList<String>();
 
     public Parser(String codigo) throws Exception {
         try {
@@ -32,8 +34,10 @@ public class Parser extends IOException {
         if (scanner.getTipoToken().equals("id")) {
             this.token = "id";
             System.out.println("Token: " + this.token);
+            tokens.add(this.token);
         } else {
             System.out.println("Token: " + this.token);
+            tokens.add(this.token);
         }
     }
 
@@ -160,5 +164,9 @@ public class Parser extends IOException {
     public void error() {
         System.out.println("Error de sintaxis");
         System.exit(0);
+    }
+
+    public ArrayList<String> getTokens() {
+        return tokens;
     }
 }

@@ -35,16 +35,16 @@ public class Ui extends JFrame {
 
         fileChooser = new JFileChooser();
 
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel panelCodigo = new JPanel(new GridLayout(1, 2, 10, 10)); // pasar a relativo
         areaCodigo = new JTextArea();
-        JScrollPane scrollPane = new JScrollPane(areaCodigo);
-        centerPanel.add(scrollPane);
+        JScrollPane scroll = new JScrollPane(areaCodigo);
+        panelCodigo.add(scroll);
 
         areaTokens = new JTextArea();
         areaTokens.setEditable(false);
         JScrollPane tokensScrollPane = new JScrollPane(areaTokens);
-        centerPanel.add(tokensScrollPane);
-        add(centerPanel, BorderLayout.CENTER);
+        panelCodigo.add(tokensScrollPane);
+        add(panelCodigo, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
         btnTokens = new JButton("Tokens");
@@ -55,7 +55,7 @@ public class Ui extends JFrame {
             }
         });
         bottomPanel.add(btnTokens);
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH); // pasar a relativo
     }
 
     private void analizarTokens() {
