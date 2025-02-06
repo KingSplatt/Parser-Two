@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
 
 public class Ui extends JFrame {
     private JTextArea areaCodigo;
@@ -59,12 +60,15 @@ public class Ui extends JFrame {
     }
 
     private void analizarTokens() {
+        areaTokens.setText("");
         String codigo = areaCodigo.getText();
         miEscaner scanner = new miEscaner(codigo);
-        String token = scanner.getToken(true);
-        while (!token.equals("EOF")) {
-            areaTokens.append(token + "\n");
-            token = scanner.getToken(true);
+        while (!scanner.getToken(true).equals("FinArchivo")) {
+            scanner.getToken(true);
+        }
+        ArrayList<String> tokens = scanner.getTokens();
+        for (String t : tokens) {
+            areaTokens.append(t + "\n");
         }
 
     }
