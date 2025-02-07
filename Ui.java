@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,9 +11,11 @@ public class Ui extends JFrame {
     private JButton btnTokens;
     private JTextArea areaTokens;
     private JFileChooser fileChooser;
+    private String[] columnas = { "Token", "Tipo" };
+    private ArrayList<String[]> datos = new ArrayList<>();
 
     public Ui() {
-        setTitle("Splatt IDE");
+        setTitle("Lenguaje de programación: Splatt");
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -37,14 +40,16 @@ public class Ui extends JFrame {
         fileChooser = new JFileChooser();
 
         JPanel panelCodigo = new JPanel(new GridLayout(1, 2, 10, 10)); // pasar a relativo
-        areaCodigo = new JTextArea();
+        areaCodigo = new JTextArea("Escribe tu código aquí");
+        areaCodigo.selectAll();
         JScrollPane scroll = new JScrollPane(areaCodigo);
         panelCodigo.add(scroll);
 
-        areaTokens = new JTextArea();
-        areaTokens.setEditable(false);
-        JScrollPane tokensScrollPane = new JScrollPane(areaTokens);
-        panelCodigo.add(tokensScrollPane);
+        // pendiente de ver tabla
+        JTable tabla = new JTable();
+        JScrollPane scrollTabla = new JScrollPane(tabla);
+        panelCodigo.add(tabla);
+        tabla.add(scrollTabla);
         add(panelCodigo, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
@@ -52,6 +57,7 @@ public class Ui extends JFrame {
         btnTokens.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                areaCodigo.setText("");
                 analizarTokens();
             }
         });
@@ -62,6 +68,7 @@ public class Ui extends JFrame {
     private void analizarTokens() {
         areaTokens.setText("");
         String codigo = areaCodigo.getText();
+        JTable tabla = new JTable();
         miEscaner scanner = new miEscaner(codigo);
         while (!scanner.getToken(true).equals("FinArchivo")) {
             scanner.getToken(true);
