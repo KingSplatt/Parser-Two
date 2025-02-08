@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -14,13 +12,13 @@ public class Ui extends JFrame {
     private JFileChooser fileChooser;
 
     public Ui() {
-        setTitle("Splatt IDE");
+        setTitle("Lenguaje: Splatt");
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
-        // Barra de menú
+        // Barra de menu
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Archivo");
         JMenuItem newFile = new JMenuItem("Nuevo");
@@ -42,7 +40,7 @@ public class Ui extends JFrame {
         // Panel principal con 2 columnas
         JPanel panelCodigo = new JPanel(new GridLayout(1, 2, 10, 10));
 
-        // Área de código (izquierda)
+        // area de codigo (izquierda)
         areaCodigo = new JTextArea();
         JScrollPane scrollCodigo = new JScrollPane(areaCodigo);
         panelCodigo.add(scrollCodigo);
@@ -56,7 +54,7 @@ public class Ui extends JFrame {
 
         add(panelCodigo, BorderLayout.CENTER);
 
-        // Botón de análisis
+        // btn de analisis
         JPanel bottomPanel = new JPanel();
         btnTokens = new JButton("Tokens");
         btnTokens.addActionListener(e -> analizarTokens());
@@ -65,7 +63,7 @@ public class Ui extends JFrame {
     }
 
     private void analizarTokens() {
-        modeloTabla.setRowCount(0); // Limpiar la tabla antes de analizar
+        modeloTabla.setRowCount(0); // limpia tabla
 
         String codigo = areaCodigo.getText();
         miEscaner scanner = new miEscaner(codigo);
@@ -107,9 +105,7 @@ public class Ui extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Ui ide = new Ui();
-            ide.setVisible(true);
-        });
+        Ui ide = new Ui();
+        ide.setVisible(true);
     }
 }
