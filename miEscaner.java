@@ -11,12 +11,14 @@ public class miEscaner {
     private int indice;
     private String tokenActual = "";
     private String tipoToken = "";
-    private ArrayList<String> tokenAguarda = new ArrayList<String>();
+    private ArrayList<String> tiposTokens, naturalTokens;
 
     public miEscaner(String codigo) {
         this.tokens = codigo.split("\\s+");
         this.indice = 0;
         this.tokenActual = tokens[indice];
+        this.tiposTokens = new ArrayList<>();
+        this.naturalTokens = new ArrayList<>();
     }
 
     public String getTipoToken() {
@@ -42,7 +44,8 @@ public class miEscaner {
             if (this.tokenActual.equals(reservada)) {
                 tokenValido = true;
                 setTipoToken("reservada");
-                tokenAguarda.add(tipoToken);
+                tiposTokens.add(tipoToken);
+                naturalTokens.add(tokenActual);
                 break;
             }
         }
@@ -52,7 +55,8 @@ public class miEscaner {
                 if (this.tokenActual.equals(operador)) {
                     tokenValido = true;
                     setTipoToken("operador");
-                    tokenAguarda.add(tipoToken);
+                    tiposTokens.add(tipoToken);
+                    naturalTokens.add(tokenActual);
                     break;
                 }
             }
@@ -62,7 +66,8 @@ public class miEscaner {
             if (this.tokenActual.equals(delimitador)) {
                 tokenValido = true;
                 setTipoToken("delimitador");
-                tokenAguarda.add(tipoToken);
+                tiposTokens.add(tipoToken);
+                naturalTokens.add(tokenActual);
             }
         }
         // Verificar si es un corchete
@@ -71,7 +76,8 @@ public class miEscaner {
                 if (this.tokenActual.equals(corchete)) {
                     tokenValido = true;
                     setTipoToken("corchete");
-                    tokenAguarda.add(tipoToken);
+                    tiposTokens.add(tipoToken);
+                    naturalTokens.add(tokenActual);
                     break;
                 }
             }
@@ -82,7 +88,8 @@ public class miEscaner {
                 if (this.tokenActual.equals(parentesi)) {
                     tokenValido = true;
                     setTipoToken("parentesis");
-                    tokenAguarda.add(tipoToken);
+                    tiposTokens.add(tipoToken);
+                    naturalTokens.add(tokenActual);
                     break;
                 }
             }
@@ -93,7 +100,8 @@ public class miEscaner {
                 if (this.tokenActual.equals(expres)) {
                     tokenValido = true;
                     setTipoToken("expresion");
-                    tokenAguarda.add(tipoToken);
+                    tiposTokens.add(tipoToken);
+                    naturalTokens.add(tokenActual);
                     break;
                 }
             }
@@ -103,7 +111,8 @@ public class miEscaner {
             if (this.tokenActual.matches("[0-9]+")) {
                 tokenValido = true;
                 setTipoToken("Num");
-                tokenAguarda.add(tipoToken);
+                tiposTokens.add(tipoToken);
+                naturalTokens.add(tokenActual);
             }
         }
         // verifica si es un numero fraccionario
@@ -111,7 +120,8 @@ public class miEscaner {
             if (this.tokenActual.matches("[0-9]+\\.[0-9]+")) {
                 tokenValido = true;
                 setTipoToken("FRACC");
-                tokenAguarda.add(tipoToken);
+                tiposTokens.add(tipoToken);
+                naturalTokens.add(tokenActual);
             }
         }
         // Verificar si es un identificador
@@ -119,7 +129,8 @@ public class miEscaner {
             if (this.tokenActual.matches("[a-z|A-Z][a-z|A-Z|0-9]*")) {
                 tokenValido = true;
                 setTipoToken("ID");
-                tokenAguarda.add(tipoToken);
+                tiposTokens.add(tipoToken);
+                naturalTokens.add(tokenActual);
             } else {
                 tokenValido = false;
             }
@@ -156,6 +167,10 @@ public class miEscaner {
     }
 
     public ArrayList<String> getTokens() {
-        return tokenAguarda;
+        return tiposTokens;
+    }
+
+    public ArrayList<String> getNaturalTokens() {
+        return naturalTokens;
     }
 }
