@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class miEscaner {
     private String tokens[];
-    private final String reservadas[] = { "int", "string", "dou", "IF", "ELSE", "print" };
+    private final String reservadas[] = { "int", "string", "dou", "IF", "ELSE", "print", "read" };
     private final String operadores[] = { "+", "=", "-", "*", "/" };
     private final String expresion[] = { "==", "!==", "<", ">", "<=", ">=" };
     private final String delimitador = ";";
