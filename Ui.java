@@ -50,6 +50,7 @@ public class Ui extends JFrame {
         modeloTabla = new DefaultTableModel(encabezados, 0);
         tablaTokens = new JTable(modeloTabla);
         JScrollPane scrollTabla = new JScrollPane(tablaTokens);
+        tablaTokens.setDefaultEditor(Object.class, null); // no editable
         // Panel con boton de tokens
         JPanel panelTabla = new JPanel(new BorderLayout());
         btnTokens = new JButton("Tokens");
@@ -78,6 +79,7 @@ public class Ui extends JFrame {
         for (int i = 0; i < tiposTokens.size(); i++) {
             modeloTabla.addRow(new Object[] { tiposTokens.get(i), naturalTokens.get(i) });
         }
+
     }
 
     private void abrirArchivo() {
