@@ -7,7 +7,6 @@ public class miEscaner {
     private final String expresion[] = { "==", "!==", "<", ">", "<=", ">=" };
     private final String delimitador = ";";
     private final String corchetes[] = { "{", "}" };
-    private final String parentesis[] = { "(", ")" };
     private int indice;
     private String tokenActual = "";
     private String tipoToken = "";
@@ -76,18 +75,6 @@ public class miEscaner {
                 if (this.tokenActual.equals(corchete)) {
                     tokenValido = true;
                     setTipoToken("corchete");
-                    tiposTokens.add(tipoToken);
-                    naturalTokens.add(tokenActual);
-                    break;
-                }
-            }
-        }
-        // Verificar si es un parentesis
-        if (!tokenValido) {
-            for (String parentesi : parentesis) {
-                if (this.tokenActual.equals(parentesi)) {
-                    tokenValido = true;
-                    setTipoToken("parentesis");
                     tiposTokens.add(tipoToken);
                     naturalTokens.add(tokenActual);
                     break;
