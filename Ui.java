@@ -50,16 +50,16 @@ public class Ui extends JFrame {
         modeloTabla = new DefaultTableModel(encabezados, 0);
         tablaTokens = new JTable(modeloTabla);
         JScrollPane scrollTabla = new JScrollPane(tablaTokens);
-        panelCodigo.add(scrollTabla);
-
+        // Panel con boton de tokens
+        JPanel panelTabla = new JPanel(new BorderLayout());
+        btnTokens = new JButton("Tokens");
+        panelTabla.add(btnTokens, BorderLayout.NORTH);
+        panelTabla.add(scrollTabla, BorderLayout.CENTER);
+        panelCodigo.add(panelTabla);
         add(panelCodigo, BorderLayout.CENTER);
 
-        // btn de analisis
-        JPanel bottomPanel = new JPanel();
-        btnTokens = new JButton("Tokens");
         btnTokens.addActionListener(e -> analizarTokens());
-        bottomPanel.add(btnTokens);
-        add(bottomPanel, BorderLayout.SOUTH);
+
     }
 
     private void analizarTokens() {
