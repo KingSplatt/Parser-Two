@@ -12,7 +12,8 @@ public class Parser extends IOException {
             M_ELSE = "ELSE",
             M_print = "print",
             M_operador = "+",
-            M_igual = "=";
+            M_igual = "=",
+            M_read = "read";
     private String M_corchetes[] = { "{", "}" };
     private String Operadores[] = { "+", "-", "*", "/" };
     private ArrayList<String> tokens = new ArrayList<String>();
@@ -112,23 +113,14 @@ public class Parser extends IOException {
                 }
             } else if (this.token.equals(M_id)) { // ME QUEDE AQUI PARA PRODUCCION DE UN ID = OPER
                 comer(M_id);
-                if (this.token.equals("EOF")) {
-                    return;
-                }
-                if (this.token.equals(M_operador)) {
-                    comer(M_operador);
-                    if (this.token.equals(M_id)) {
-                        comer(M_id);
-                        return;
-                    } else {
-                        throw new Exception("id");
-                    }
-                }
                 comer(M_igual);
-                E();
+                OPER();
             } else if (this.token.equals(M_print)) {
                 comer(M_print);
-                E();
+                OPER();
+            } else if (this.token.equals(M_read)) {
+                comer(M_read);
+                comer(M_id);
             } else {
                 throw new Exception("Error se esperaba algo en S (while, id, print)");
             }
@@ -158,6 +150,17 @@ public class Parser extends IOException {
             }
         } catch (Exception e) {
             throw new Exception("Error se esperaba una " + e.getMessage());
+        }
+    }
+
+    public void OPER() {
+        if (this.token.equals(M_SUMA)) {
+
+        } else if (this.token.equals(M_RESTA)) {
+
+        } else if (this.token.equals(M_MULM)) {
+
+        } else if (this.token.equals(M_DIVM)) {
         }
     }
 
