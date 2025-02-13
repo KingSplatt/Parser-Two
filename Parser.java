@@ -57,12 +57,14 @@ public class Parser extends IOException {
 
     }
 
-    public void intorstring(String tok) {
+    public void intorstringdou(String tok) {
         try {
             if (this.token.equals(M_int)) {
                 comer(M_int);
             } else if (this.token.equals(M_string)) {
                 comer(M_string);
+            } else if (this.token.equals(M_dou)) {
+                comer(M_dou);
             } else {
                 throw new Exception("Error se esperaba un tipo de dato");
             }
@@ -84,7 +86,7 @@ public class Parser extends IOException {
     public void D() {
         if (this.token.equals(M_id)) {
             comer(M_id);
-            intorstring(this.token);
+            intorstringdou(this.token);
             comer(";");
             D();
         } else {
@@ -118,7 +120,7 @@ public class Parser extends IOException {
                 comer(M_read);
                 comer(M_id);
             } else {
-                throw new Exception("Error se esperaba algo en S (while, id, print)");
+                throw new Exception("Error se esperaba algo en S (IF, ID, print, read)");
             }
         } catch (Exception e) {
             System.err.println(e);
