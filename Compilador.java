@@ -11,7 +11,7 @@ public class Compilador {
         // String codigo = "print a3 + b82 ; print b8 ;";
         // String codigo = "";
 
-        String codigo = "id = ha + as2";
+        String codigo = "hola int ; pedro int ; IF hola == pedro { print hola + pedro ; }";
         Parser parser = new Parser(codigo);
         parser.P();
     }

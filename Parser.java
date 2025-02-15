@@ -32,8 +32,8 @@ public class Parser extends IOException {
 
     public void avanzar() {
         this.token = scanner.getToken(true);
-        if (scanner.getTipoToken().equals("id")) {
-            this.token = "id";
+        if (scanner.getTipoToken().equals("ID")) {
+            this.token = "ID";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
         } else {
