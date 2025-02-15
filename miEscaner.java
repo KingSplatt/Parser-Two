@@ -135,7 +135,7 @@ public class miEscaner {
 
     public String goFront() {
         if (indice < tokens.length) {
-            return tokens[indice + 1];
+            return tokens[++indice];
         } else {
             return "No hay mas tokens";
         }
@@ -143,7 +143,7 @@ public class miEscaner {
 
     public String goBack() {
         if (indice > 0) {
-            return tokens[indice - 1];
+            return tokens[--indice];
         } else {
             return "No hay mas tokens";
         }

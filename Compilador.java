@@ -2,17 +2,9 @@
 public class Compilador {
 
     public static void main(String[] args) throws Exception {
-
-        // String codigo = "a83 int ; b32 string ; while a3 + a23 do while hola do while
-        // pepe do print s + a84";
-        // String codigo = "while a63 do while ba28 + a43 do print hola23 + a42";
-        // String codigo = "while a3 + b82 do print b8 + a43";
-        // String codigo = "while a63 do while ba28 + a43 do print hola23 + while";
-        // String codigo = "print a3 + b82 ; print b8 ;";
-        // String codigo = "";
-
-        String codigo = "hola int ; pedro int ; IF hola == pedro { print hola + pedro ; }";
-        Parser parser = new Parser(codigo);
+        String codigo = "hola int ; pedro int ; IF hola == pedro { print 12 / 41 }";
+        String codigo2 = "hola int ; pedro int ; IF hola == pedro { print 11 + 41 } ELSE { IF hola == pedro { print 12 / 41 } }";
+        Parser parser = new Parser(codigo2);
         parser.P();
     }
 }

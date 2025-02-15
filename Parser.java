@@ -36,6 +36,12 @@ public class Parser extends IOException {
             this.token = "ID";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
+        } else if (scanner.getTipoToken().equals("Num")) {
+            this.token = "Num";
+            System.out.println("Token: " + this.token);
+        } else if (scanner.getTipoToken().equals("FRACC")) {
+            System.out.println("Token: " + this.token);
+            tokens.add(this.token);
         } else {
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
@@ -45,6 +51,8 @@ public class Parser extends IOException {
     public void comer(String tok) {
         try {
             if (this.token.equals(tok)) {
+                avanzar();
+            } else if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
                 avanzar();
             } else {
                 throw new Exception("error en " + tok);
@@ -164,113 +172,13 @@ public class Parser extends IOException {
     public void OPER() {
         if (this.token == M_id) {
             comer(M_id);
-        } else if (this.token == SUMA(M_num) || this.token == RESTA(M_num) || this.token == MULM(M_num)
-                || this.token == DIVM(M_num)) {
-            comer(this.token);
-        } else if (this.token == SUMA(M_dou) || this.token == RESTA(M_dou) || this.token == MULM(M_dou)
-                || this.token == DIVM(M_dou)) {
-            comer(this.token);
-        }
-    }
-
-    public String SUMA(String token) {
-        if (token.equals(M_num)) {
+        } else if (this.token == M_num) {
             comer(M_num);
-            if (this.token.equals(M_Operadores[0])) {
-                comer(M_Operadores[0]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        } else if (token.equals(M_dou)) {
+        } else if (this.token == M_dou) {
             comer(M_dou);
-            if (this.token.equals(M_Operadores[0])) {
-                comer(M_Operadores[0]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
+        } else {
+            error();
         }
-        return token;
-    }
-
-    public String RESTA(String token) {
-        if (token.equals(M_num)) {
-            comer(M_num);
-            if (this.token.equals(M_Operadores[1])) {
-                comer(M_Operadores[1]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        } else if (token.equals(M_dou)) {
-            comer(M_dou);
-            if (this.token.equals(M_Operadores[1])) {
-                comer(M_Operadores[1]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        }
-        return token;
-    }
-
-    public String MULM(String token) {
-        if (token.equals(M_num)) {
-            comer(M_num);
-            if (this.token.equals(M_Operadores[2])) {
-                comer(M_Operadores[2]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        } else if (token.equals(M_dou)) {
-            comer(M_dou);
-            if (this.token.equals(M_Operadores[2])) {
-                comer(M_Operadores[2]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        }
-        return token;
-    }
-
-    public String DIVM(String token) {
-        if (token.equals(M_num)) {
-            comer(M_num);
-            if (this.token.equals(M_Operadores[3])) {
-                comer(M_Operadores[3]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        } else if (token.equals(M_dou)) {
-            comer(M_dou);
-            if (this.token.equals(M_Operadores[3])) {
-                comer(M_Operadores[3]);
-                if (this.token.equals(M_num)) {
-                    comer(M_num);
-                } else if (this.token.equals(M_dou)) {
-                    comer(M_dou);
-                }
-            }
-        }
-        return token;
     }
 
     public void error() {
