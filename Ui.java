@@ -13,7 +13,7 @@ public class Ui extends JFrame {
 
     public Ui() {
         setTitle("Lenguaje: Splatt");
-        setSize(800, 500);
+        setSize(1080, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -72,6 +72,18 @@ public class Ui extends JFrame {
         panelTablaEst.add(scrollTablaEst, BorderLayout.CENTER);
         panelCodigo.add(panelTablaEst);
 
+        // Consola (abajo)
+        JPanel panelConsola = new JPanel(new BorderLayout());
+        JLabel lblConsola = new JLabel("Consola:");
+        lblConsola.setFont(new Font("Arial", Font.BOLD, 16));
+        lblConsola.setHorizontalAlignment(SwingConstants.CENTER);
+        panelConsola.add(lblConsola, BorderLayout.NORTH);
+        add(panelConsola, BorderLayout.SOUTH);
+        JTextArea consola = new JTextArea(8, 1);
+        consola.setEditable(false);
+        JScrollPane scrollConsola = new JScrollPane(consola);
+        panelConsola.add(scrollConsola, BorderLayout.CENTER);
+
         btnTokens.addActionListener(e -> analizarTokens());
         btnEstatutos.addActionListener(e -> {
             try {
@@ -109,7 +121,6 @@ public class Ui extends JFrame {
 
         try {
             parser.P();
-
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error de sintaxis", "Error", JOptionPane.ERROR_MESSAGE);
         }

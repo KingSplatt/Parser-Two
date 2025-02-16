@@ -39,6 +39,7 @@ public class Parser extends IOException {
         } else if (scanner.getTipoToken().equals("Num")) {
             this.token = "Num";
             System.out.println("Token: " + this.token);
+            tokens.add(this.token);
         } else if (scanner.getTipoToken().equals("FRACC")) {
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
