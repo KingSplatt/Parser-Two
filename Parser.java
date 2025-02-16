@@ -7,12 +7,12 @@ public class Parser extends IOException {
     private final String M_id = "ID",
             M_int = "int",
             M_string = "string",
+            M_dou = "dou",
             M_IF = "IF",
             M_ELSE = "ELSE",
             M_print = "print",
             M_read = "read",
-            M_num = "Num",
-            M_dou = "FRACC";
+            M_num = "Num";
     private String M_corchetes[] = { "{", "}" };
     private String M_Operadores[] = { "+", "-", "*", "/", "=" };
     private String M_expresiones[] = { "==", "!==", ">", ">=", "<", "<=", };
@@ -49,20 +49,16 @@ public class Parser extends IOException {
     }
 
     public void comer(String tok) {
-        try {
-            if (this.token.equals(tok)) {
-                avanzar();
-            } else if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
-                avanzar();
-            } else {
-                throw new Exception("error en " + tok);
-            }
-
-        } catch (Exception e) {
-            System.err.println(e);
-
+        if (this.token.equals(tok)) {
+            avanzar();
+        } else {
+            error("Se esperaba " + tok + " pero se encontró " + this.token);
         }
+    }
 
+    public void error(String mensaje) {
+        System.err.println("Error de sintaxis: " + mensaje);
+        System.exit(1);
     }
 
     public void intorstringdou(String tok) {
@@ -74,7 +70,7 @@ public class Parser extends IOException {
             } else if (this.token.equals(M_dou)) {
                 comer(M_dou);
             } else {
-                throw new Exception("Error se esperaba un tipo de dato");
+                error("Se esperaba un tipo de dato, pero se recibio: " + this.token);
             }
         } catch (Exception e) {
             System.err.println(e);
@@ -170,20 +166,30 @@ public class Parser extends IOException {
     }
 
     public void OPER() {
-        if (this.token == M_id) {
-            comer(M_id);
-        } else if (this.token == M_num) {
-            comer(M_num);
-        } else if (this.token == M_dou) {
-            comer(M_dou);
+        if (this.token.equals(M_id) || this.token.equals(M_num) || this.token.equals(M_dou)) {
+            TERMINO();
+            while (esOperador(this.token)) {
+                String operador = this.token;
+                comer(operador);
+                TERMINO();
+            }
         } else {
-            error();
+            error("g");
         }
     }
 
-    public void error() {
-        System.out.println("Error de sintaxis");
-        System.exit(0);
+    public void TERMINO() {
+        if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
+            avanzar();
+        } else if (this.token.equals("ID")) {
+            comer("ID");
+        } else {
+            error("g");
+        }
+    }
+
+    private boolean esOperador(String token) {
+        return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/");
     }
 
     public ArrayList<String> getTokens() {

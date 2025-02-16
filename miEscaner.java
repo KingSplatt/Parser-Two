@@ -31,7 +31,7 @@ public class miEscaner {
     public String getToken(boolean avanza) {
         boolean tokenValido = false;
         if (indice >= tokens.length) {
-            return "FinArchivo";
+            return "";
         }
         this.tokenActual = tokens[indice];
         if (avanza) {
