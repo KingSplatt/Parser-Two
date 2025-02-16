@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 public class Ui extends JFrame {
     private JTextArea areaCodigo;
-    private JButton btnTokens;
+    private JButton btnTokens, btnEstatutos;
     private JTable tablaTokens;
-    private DefaultTableModel modeloTabla;
+    private DefaultTableModel modeloTablaTokens, modeloTablaEst;
     private JFileChooser fileChooser;
 
     public Ui() {
@@ -38,17 +38,17 @@ public class Ui extends JFrame {
         fileChooser = new JFileChooser();
 
         // Panel principal con 2 columnas
-        JPanel panelCodigo = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel panelCodigo = new JPanel(new GridLayout(1, 3, 10, 10));
 
         // area de codigo (izquierda)
         areaCodigo = new JTextArea();
         JScrollPane scrollCodigo = new JScrollPane(areaCodigo);
         panelCodigo.add(scrollCodigo);
 
-        // Tabla de tokens (derecha)
+        // Tabla de tokens (centro)
         String[] encabezados = { "Tipo", "Token" };
-        modeloTabla = new DefaultTableModel(encabezados, 0);
-        tablaTokens = new JTable(modeloTabla);
+        modeloTablaTokens = new DefaultTableModel(encabezados, 0);
+        tablaTokens = new JTable(modeloTablaTokens);
         JScrollPane scrollTabla = new JScrollPane(tablaTokens);
         tablaTokens.setDefaultEditor(Object.class, null); // no editable
         // Panel con boton de tokens
@@ -59,17 +59,36 @@ public class Ui extends JFrame {
         panelCodigo.add(panelTabla);
         add(panelCodigo, BorderLayout.CENTER);
 
-        btnTokens.addActionListener(e -> analizarTokens());
+        // tabla de estatutos (derecha)
+        String[] encabezadosEst = { "Estatuto" };
+        modeloTablaEst = new DefaultTableModel(encabezadosEst, 0);
+        JTable tablaEst = new JTable(modeloTablaEst);
+        JScrollPane scrollTablaEst = new JScrollPane(tablaEst);
+        tablaEst.setDefaultEditor(Object.class, null); // no editable
+        // Panel con boton de estatutos
+        JPanel panelTablaEst = new JPanel(new BorderLayout());
+        btnEstatutos = new JButton("Estatutos");
+        panelTablaEst.add(btnEstatutos, BorderLayout.NORTH);
+        panelTablaEst.add(scrollTablaEst, BorderLayout.CENTER);
+        panelCodigo.add(panelTablaEst);
 
+        btnTokens.addActionListener(e -> analizarTokens());
+        btnEstatutos.addActionListener(e -> {
+            try {
+                analizarEstatutos();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
     }
 
-    private void analizarTokens() {
-        modeloTabla.setRowCount(0); // limpia tabla
+    public void analizarTokens() {
+        modeloTablaTokens.setRowCount(0); // limpia tabla
 
         String codigo = areaCodigo.getText();
         miEscaner scanner = new miEscaner(codigo);
 
-        while (!scanner.getToken(true).equals("FinArchivo")) {
+        while (!scanner.getToken(true).equals("")) {
             scanner.getToken(true);
         }
 
@@ -77,9 +96,28 @@ public class Ui extends JFrame {
         ArrayList<String> naturalTokens = scanner.getNaturalTokens();
 
         for (int i = 0; i < tiposTokens.size(); i++) {
-            modeloTabla.addRow(new Object[] { tiposTokens.get(i), naturalTokens.get(i) });
+            modeloTablaTokens.addRow(new Object[] { tiposTokens.get(i), naturalTokens.get(i) });
         }
 
+    }
+
+    public void analizarEstatutos() throws Exception {
+        modeloTablaEst.setRowCount(0); // limpia tabla
+
+        String codigo = areaCodigo.getText();
+        Parser parser = new Parser(codigo);
+
+        try {
+            parser.P();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error de sintaxis", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        ArrayList<String> estatutos = parser.getTokens();
+
+        for (String estatuto : estatutos) {
+            modeloTablaEst.addRow(new Object[] { estatuto });
+        }
     }
 
     private void abrirArchivo() {

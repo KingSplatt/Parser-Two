@@ -81,7 +81,6 @@ public class Parser extends IOException {
         try {
             D();
             S();
-            System.exit(0);
         } catch (Exception e) {
             System.err.println(e);
         }
@@ -194,5 +193,10 @@ public class Parser extends IOException {
 
     public ArrayList<String> getTokens() {
         return tokens;
+    }
+
+    public void programa() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'programa'");
     }
 }
