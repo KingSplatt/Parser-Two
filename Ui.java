@@ -5,11 +5,12 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Ui extends JFrame {
-    private JTextArea areaCodigo;
+    private JTextArea areaCodigo, consola;
     private JButton btnTokens, btnEstatutos;
     private JTable tablaTokens;
     private DefaultTableModel modeloTablaTokens, modeloTablaEst;
     private JFileChooser fileChooser;
+    private JLabel lblConsola;
 
     public Ui() {
         setTitle("Lenguaje: Splatt");
@@ -74,12 +75,12 @@ public class Ui extends JFrame {
 
         // Consola (abajo)
         JPanel panelConsola = new JPanel(new BorderLayout());
-        JLabel lblConsola = new JLabel("Consola:");
+        lblConsola = new JLabel("Consola:");
         lblConsola.setFont(new Font("Arial", Font.BOLD, 16));
         lblConsola.setHorizontalAlignment(SwingConstants.CENTER);
         panelConsola.add(lblConsola, BorderLayout.NORTH);
         add(panelConsola, BorderLayout.SOUTH);
-        JTextArea consola = new JTextArea(8, 1);
+        consola = new JTextArea(8, 1);
         consola.setEditable(false);
         JScrollPane scrollConsola = new JScrollPane(consola);
         panelConsola.add(scrollConsola, BorderLayout.CENTER);
@@ -120,9 +121,14 @@ public class Ui extends JFrame {
         Parser parser = new Parser(codigo);
 
         try {
+            consola.setText("");
             parser.P();
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error de sintaxis", "Error", JOptionPane.ERROR_MESSAGE);
+
+            consola.setText(e.getMessage());
+            consola.setForeground(Color.RED);
+
         }
         ArrayList<String> estatutos = parser.getTokens();
 

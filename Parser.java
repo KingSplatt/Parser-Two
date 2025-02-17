@@ -49,11 +49,15 @@ public class Parser extends IOException {
         }
     }
 
-    public void comer(String tok) {
-        if (this.token.equals(tok)) {
-            avanzar();
-        } else {
-            error("Se esperaba " + tok + " pero se encontró " + this.token);
+    public void comer(String tok) throws Exception {
+        try {
+            if (this.token.equals(tok)) {
+                avanzar();
+            } else {
+                throw new Exception("Se esperaba " + tok);
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -62,7 +66,7 @@ public class Parser extends IOException {
         System.exit(1);
     }
 
-    public void intorstringdou(String tok) {
+    public void intorstringdou(String tok) throws Exception {
         try {
             if (this.token.equals(M_int)) {
                 comer(M_int);
@@ -71,10 +75,10 @@ public class Parser extends IOException {
             } else if (this.token.equals(M_dou)) {
                 comer(M_dou);
             } else {
-                error("Se esperaba un tipo de dato, pero se recibio: " + this.token);
+                throw new Exception("Se esperaba un tipo de dato");
             }
         } catch (Exception e) {
-            System.err.println(e);
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -83,18 +87,29 @@ public class Parser extends IOException {
             D();
             S();
         } catch (Exception e) {
-            System.err.println(e);
+            throw new Exception(e.getMessage());
         }
     }
 
-    public void D() {
-        if (this.token.equals(M_id)) {
-            comer(M_id);
-            intorstringdou(this.token);
-            comer(";");
-            D();
-        } else {
-            return;
+    public void D() throws Exception {
+        try {
+            if (this.token.equals(M_id)) {
+                comer(M_id);
+                if (this.token.equals(M_expresiones[0]) ||
+                        this.token.equals(M_expresiones[1])
+                        || this.token.equals(M_expresiones[2]) || this.token.equals(M_expresiones[3])
+                        || this.token.equals(M_expresiones[4]) ||
+                        this.token.equals(M_expresiones[5])) {
+                    throw new Exception("Se esperaba un IF");
+                }
+                intorstringdou(this.token);
+                comer(";");
+                D();
+            } else {
+                return;
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
 
     }
@@ -124,10 +139,10 @@ public class Parser extends IOException {
                 comer(M_read);
                 comer(M_id);
             } else {
-                throw new Exception("Error se esperaba algo en S (IF, ID, print, read)");
+                throw new Exception("Se esperaba un estatuto (IF, ID, print, read)");
             }
         } catch (Exception e) {
-            System.err.println(e);
+            throw new Exception(e.getMessage() + " en cambio se recibio: " + this.token);
         }
     }
 
@@ -157,7 +172,7 @@ public class Parser extends IOException {
                     comer(M_expresiones[5]);
                     comer(M_id);
                 } else {
-                    throw new Exception("Error se esperaba una expresion");
+                    throw new Exception("expresion");
                 }
             }
         } catch (Exception e) {
@@ -165,39 +180,50 @@ public class Parser extends IOException {
         }
     }
 
-    public void OPER() {
-        if (this.token.equals(M_id) || this.token.equals(M_num) || this.token.equals(M_dou)) {
-            TERMINO();
-            while (esOperador(this.token)) {
-                String operador = this.token;
-                comer(operador);
+    public void OPER() throws Exception {
+        try {
+            if (this.token.equals(M_id) || this.token.equals(M_num) || this.token.equals(M_dou)) {
                 TERMINO();
+                if (esOperador(this.token)) {
+                    String operador = this.token;
+                    comer(operador);
+                    TERMINO();
+                } else {
+                    throw new Exception("Se esperaba un operador");
+                }
+            } else {
+                throw new Exception("Se esperaba un operando");
             }
-        } else {
-            error("g");
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
-    public void TERMINO() {
-        if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
-            avanzar();
-        } else if (this.token.equals("ID")) {
-            comer("ID");
-        } else {
-            error("g");
+    public void TERMINO() throws Exception {
+        try {
+            if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
+                avanzar();
+            } else if (this.token.equals("ID")) {
+                comer("ID");
+            } else {
+                throw new Exception("Se esperaba un Numero, Fraccion o un ID");
+            }
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
     private boolean esOperador(String token) {
-        return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/");
+        if (token.equals(M_Operadores[0]) || token.equals(M_Operadores[1]) || token.equals(M_Operadores[2])
+                || token.equals(M_Operadores[3])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public ArrayList<String> getTokens() {
         return tokens;
-    }
-
-    public void programa() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'programa'");
     }
 }

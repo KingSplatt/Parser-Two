@@ -127,9 +127,7 @@ public class miEscaner {
             return this.tokenActual;
 
         } else {
-            error(this.tokenActual);
-            setTipoToken("Token invalido");
-            return "Token invalido";
+            return error(this.tokenActual);
         }
     }
 
@@ -149,8 +147,8 @@ public class miEscaner {
         }
     }
 
-    public void error(String token) {
-        System.out.println("Token no valido para: " + token);
+    public String error(String token) {
+        return "Error de token: " + token;
     }
 
     public ArrayList<String> getTokens() {
