@@ -182,7 +182,7 @@ public class Parser extends IOException {
 
     public void OPER() throws Exception {
         try {
-            if (this.token.equals(M_id) || this.token.equals(M_num) || this.token.equals(M_dou)) {
+            if (this.token.equals(M_num) || this.token.equals(M_dou)) {
                 TERMINO();
                 if (esOperador(this.token)) {
                     String operador = this.token;
@@ -191,8 +191,10 @@ public class Parser extends IOException {
                 } else {
                     throw new Exception("Se esperaba un operador");
                 }
+            } else if (this.token.equals(M_id)) {
+                comer(M_id);
             } else {
-                throw new Exception("Se esperaba un operando");
+                throw new Exception("Se esperaba un Numero, Fraccion o un ID");
             }
         } catch (Exception e) {
             throw new Exception(e.getMessage());
