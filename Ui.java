@@ -85,7 +85,13 @@ public class Ui extends JFrame {
         JScrollPane scrollConsola = new JScrollPane(consola);
         panelConsola.add(scrollConsola, BorderLayout.CENTER);
 
-        btnTokens.addActionListener(e -> analizarTokens());
+        btnTokens.addActionListener(e -> {
+            try {
+                analizarTokens();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
         btnEstatutos.addActionListener(e -> {
             try {
                 analizarEstatutos();
@@ -95,14 +101,19 @@ public class Ui extends JFrame {
         });
     }
 
-    public void analizarTokens() {
+    public void analizarTokens() throws Exception {
         modeloTablaTokens.setRowCount(0); // limpia tabla
 
         String codigo = areaCodigo.getText();
         miEscaner scanner = new miEscaner(codigo);
 
-        while (!scanner.getToken(true).equals("")) {
-            scanner.getToken(true);
+        try {
+            while (!scanner.getToken(true).equals("")) {
+                scanner.getToken(true);
+            }
+        } catch (Exception e) {
+            consola.setText(e.getMessage());
+            consola.setForeground(Color.RED);
         }
 
         ArrayList<String> tiposTokens = scanner.getTokens();

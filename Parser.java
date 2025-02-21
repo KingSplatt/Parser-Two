@@ -20,17 +20,14 @@ public class Parser extends IOException {
 
     public Parser(String codigo) throws Exception {
         try {
-            if (codigo.equals("")) {
-                throw new RuntimeException();
-            }
             scanner = new miEscaner(codigo);
             avanzar();
         } catch (Exception e) {
-            throw new RuntimeException("No se puede leer un archivo vacio");
+            throw new RuntimeException("Error en el analisis lexico: " + e.getMessage());
         }
     }
 
-    public void avanzar() {
+    public void avanzar() throws Exception {
         this.token = scanner.getToken(true);
         if (scanner.getTipoToken().equals("ID")) {
             this.token = "ID";
@@ -40,7 +37,8 @@ public class Parser extends IOException {
             this.token = "Num";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
-        } else if (scanner.getTipoToken().equals("FRACC")) {
+        } else if (scanner.getTipoToken().equals("dou")) {
+            this.token = "FRACC";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
         } else {
@@ -59,11 +57,6 @@ public class Parser extends IOException {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
-    }
-
-    public void error(String mensaje) {
-        System.err.println("Error de sintaxis: " + mensaje);
-        System.exit(1);
     }
 
     public void intorstringdou(String tok) throws Exception {
@@ -94,6 +87,11 @@ public class Parser extends IOException {
     public void D() throws Exception {
         try {
             if (this.token.equals(M_id)) {
+                // checar el siguiente token
+                String aux = scanner.getToken(false);
+                if (aux.equals(M_Operadores[4])) {
+                    return;
+                }
                 comer(M_id);
                 if (this.token.equals(M_expresiones[0]) ||
                         this.token.equals(M_expresiones[1])
@@ -203,7 +201,7 @@ public class Parser extends IOException {
 
     public void TERMINO() throws Exception {
         try {
-            if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
+            if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("dou")) {
                 avanzar();
             } else if (this.token.equals("ID")) {
                 comer("ID");
