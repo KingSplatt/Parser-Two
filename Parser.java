@@ -18,6 +18,7 @@ public class Parser extends IOException {
     private String M_Operadores[] = { "+", "-", "*", "/", "=" };
     private String M_expresiones[] = { "==", "!==", ">", ">=", "<", "<=", };
     private ArrayList<String> tokens = new ArrayList<String>();
+    private ArrayList<String> tokensNaturales = new ArrayList<String>();
 
     public Parser(String codigo) throws Exception {
         try {
@@ -30,6 +31,7 @@ public class Parser extends IOException {
 
     public void avanzar() throws Exception {
         this.token = scanner.getToken(true);
+        tokensNaturales.add(this.token);
         if (scanner.getTipoToken().equals("ID")) {
             this.token = "ID";
             System.out.println("Token: " + this.token);
@@ -80,6 +82,7 @@ public class Parser extends IOException {
         try {
             D();
             S();
+            semantico = new Semantico(tokens, tokensNaturales);
             semantico.AnalizarTokens();
             semantico.AnalizarValorTokens();
         } catch (Exception e) {
@@ -228,5 +231,9 @@ public class Parser extends IOException {
 
     public ArrayList<String> getTokens() {
         return tokens;
+    }
+
+    public ArrayList<String> getTokensNaturales() {
+        return tokensNaturales;
     }
 }

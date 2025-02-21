@@ -2,7 +2,7 @@
 public class Compilador {
 
     public static void main(String[] args) throws Exception {
-        String codigo = "a83 int ; b32 int ; IF a83 == b32 {\r\n" + //
+        String codigo = "a83 int ; b32 dou ; IF a83 == b32 {\r\n" + //
                 "a83 = 15 + 2 \r\n" + //
                 "} ELSE {\r\n" + //
                 "IF a83 !== b32 {\r\n" + //
