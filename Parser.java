@@ -4,6 +4,7 @@ import java.util.ArrayList;
 public class Parser extends IOException {
     private String token;
     private miEscaner scanner;
+    private Semantico semantico;
     private final String M_id = "ID",
             M_int = "int",
             M_string = "string",
@@ -79,6 +80,8 @@ public class Parser extends IOException {
         try {
             D();
             S();
+            semantico.AnalizarTokens();
+            semantico.AnalizarValorTokens();
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
