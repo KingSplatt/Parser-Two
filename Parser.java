@@ -82,6 +82,8 @@ public class Parser extends IOException {
         try {
             D();
             S();
+            tokens.remove(tokens.size() - 1);
+            tokensNaturales.remove(tokensNaturales.size() - 1);
             semantico = new Semantico(tokens, tokensNaturales);
             semantico.AnalizarTokens();
             semantico.AnalizarValorTokens();
@@ -207,7 +209,7 @@ public class Parser extends IOException {
 
     public void TERMINO() throws Exception {
         try {
-            if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("dou")) {
+            if (scanner.getTipoToken().equals("Num") || scanner.getTipoToken().equals("FRACC")) {
                 avanzar();
             } else if (this.token.equals("ID")) {
                 comer("ID");

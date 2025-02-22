@@ -17,7 +17,7 @@ public class Semantico {
         System.out.println("Tokens naturales recibidos:");
         tokensNaturales.forEach(System.out::println);
 
-        for (int i = 0; i < tokens.size() - 1; i++) {
+        for (int i = 0; i < tokens.size(); i++) {
             if (tokens.get(i).equals("ID")) {
                 String nombreVariable = tokensNaturales.get(i);
                 String tipodedato = "";
@@ -33,7 +33,7 @@ public class Semantico {
                 }
 
                 // Verificar si hay una asignación (ID = valor)
-                if (i + 2 < tokens.size() - 1 && tokens.get(i + 1).equals("=")) {
+                if (i + 2 < tokens.size() && tokens.get(i + 1).equals("=")) {
                     int j = i + 2; // Posición después del '='
                     valorFinal = procesarExpresion(j);
                     esOperacion = true;
@@ -66,7 +66,7 @@ public class Semantico {
         ArrayList<Double> valores = new ArrayList<>();
         ArrayList<Character> operadores = new ArrayList<>();
 
-        for (int i = inicio; i < tokens.size() - 1; i++) {
+        for (int i = inicio; i < tokens.size(); i++) {
             String token = tokens.get(i);
             String valor = tokensNaturales.get(i);
             // verificar si es un numero o una variable
