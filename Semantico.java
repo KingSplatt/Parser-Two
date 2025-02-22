@@ -3,20 +3,15 @@ import java.util.HashMap;
 
 public class Semantico {
     private ArrayList<String> tokens, tokensNaturales;
-    private HashMap<String, Variables> tablaSimbolos = new HashMap<>();
+    private HashMap<String, Variables> tablaSimbolos;
 
     public Semantico(ArrayList<String> tokensRecibidos, ArrayList<String> tokensNaturalesRecibidos) {
         this.tokens = tokensRecibidos;
         this.tokensNaturales = tokensNaturalesRecibidos;
+        this.tablaSimbolos = new HashMap<>();
     }
 
     public void AnalizarTokens() {
-        System.out.println("Tokens recibidos:");
-        tokens.forEach(System.out::println);
-
-        System.out.println("Tokens naturales recibidos:");
-        tokensNaturales.forEach(System.out::println);
-
         for (int i = 0; i < tokens.size(); i++) {
             if (tokens.get(i).equals("ID")) {
                 String nombreVariable = tokensNaturales.get(i);
@@ -32,39 +27,53 @@ public class Semantico {
                     }
                 }
 
+                // Si la variable ya fue declarada, recuperar su tipo
+                if (tablaSimbolos.containsKey(nombreVariable)) {
+                    tipodedato = tablaSimbolos.get(nombreVariable).getTipo();
+                }
+
                 // Verificar si hay una asignación (ID = valor)
                 if (i + 2 < tokens.size() && tokens.get(i + 1).equals("=")) {
                     int j = i + 2; // Posición después del '='
                     valorFinal = procesarExpresion(j);
                     esOperacion = true;
-                    tipodedato = "dou";
-                    if (valorFinal % 1 == 0) {
-                        tipodedato = "int";
+                }
+
+                // Si la variable ya existe, solo actualizar su valor
+                if (tablaSimbolos.containsKey(nombreVariable)) {
+                    Variables variableExistente = tablaSimbolos.get(nombreVariable);
+                    if (esOperacion) {
+                        // verifica si el tipo de dato es int, dou o string
+                        if (tipodedato.equals("int")) {
+                            variableExistente.setValorInt((int) valorFinal);
+                        } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
+                            variableExistente.setValorDouble(valorFinal);
+                        } else {
+                            variableExistente.setValorStr(tokensNaturales.get(i + 2));
+                            tokensNaturales.remove(i + 2);
+                            tokens.remove(i + 2);
+                        }
                     }
-
-                }
-
-                // Crear la variable con el valor correcto
-                Variables variable;
-                if (tipodedato.equals("int")) {
-                    variable = new Variables(tipodedato, (int) valorFinal);
-                } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
-                    variable = new Variables(tipodedato, valorFinal);
                 } else {
-                    variable = new Variables(tipodedato, String.valueOf(valorFinal));
-                }
-
-                // Agregar a la tabla de símbolos
-                if (!tipodedato.isEmpty() || esOperacion) {
+                    // Crear la variable solo si no existe
+                    Variables variable;
+                    if (tipodedato.equals("int")) {
+                        variable = new Variables(tipodedato, (int) valorFinal);
+                    } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
+                        variable = new Variables(tipodedato, valorFinal);
+                    } else {
+                        variable = new Variables(tipodedato, "");
+                    }
                     tablaSimbolos.put(nombreVariable, variable);
                 }
+
             }
         }
     }
 
     private double procesarExpresion(int inicio) {
         ArrayList<Double> valores = new ArrayList<>();
-        ArrayList<Character> operadores = new ArrayList<>();
+        char operador = ' ';
 
         for (int i = inicio; i < tokens.size(); i++) {
             String token = tokens.get(i);
@@ -77,32 +86,31 @@ public class Semantico {
                 } else {
                     numero = Double.parseDouble(valor);
                 }
-
-                // Si hay una multiplicación o división pendiente, resolverla antes
-                if (!operadores.isEmpty() && (operadores.get(operadores.size() - 1) == '*'
-                        || operadores.get(operadores.size() - 1) == '/')) {
-                    char operador = operadores.remove(operadores.size() - 1);
-                    double previo = valores.remove(valores.size() - 1);
-                    numero = (operador == '*') ? (previo * numero) : (previo / numero);
-                }
-
                 valores.add(numero);
             } else if (token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/")) {
-                operadores.add(token.charAt(0));
+                operador = token.charAt(0);
             } else {
-                break; // Fin de expresión
+                break;
             }
         }
 
-        // Resolver sumas y restas
         double resultado = valores.get(0);
-        int index = 1;
-        for (char operador : operadores) {
-            if (operador == '+')
-                resultado += valores.get(index);
-            else if (operador == '-')
-                resultado -= valores.get(index);
-            index++;
+        for (int i = 1; i < valores.size(); i++) {
+            double numero = valores.get(i);
+            switch (operador) {
+                case '+':
+                    resultado += numero;
+                    break;
+                case '-':
+                    resultado -= numero;
+                    break;
+                case '*':
+                    resultado *= numero;
+                    break;
+                case '/':
+                    resultado /= numero;
+                    break;
+            }
         }
 
         return resultado;
@@ -135,6 +143,7 @@ public class Semantico {
     }
 
     public void AnalizarValorTokens() {
+        System.out.println("Tabla de símbolos:");
         tablaSimbolos.forEach((key, value) -> {
             System.out.println("Nombre: " + key + " Tipo: " + value.getTipo() +
                     " Valor (int): " + value.getValorInt() +
@@ -143,5 +152,9 @@ public class Semantico {
                     " Hex: " + value.getValorHex() +
                     " Bin: " + value.getValorBin());
         });
+    }
+
+    public HashMap<String, Variables> getTablaSimbolos() {
+        return tablaSimbolos;
     }
 }

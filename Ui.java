@@ -3,14 +3,17 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Ui extends JFrame {
     private JTextArea areaCodigo, consola;
-    private JButton btnTokens, btnEstatutos;
+    private JButton btnTokens, btnEstatutos, btnSimbolos;
     private JTable tablaTokens;
-    private DefaultTableModel modeloTablaTokens, modeloTablaEst;
+    private DefaultTableModel modeloTablaTokens, modeloTablaEst, modeloTablaSimbolos;
     private JFileChooser fileChooser;
     private JLabel lblConsola;
+    private Parser parser;
+    private miEscaner scanner;
 
     public Ui() {
         setTitle("Lenguaje: Splatt");
@@ -85,6 +88,19 @@ public class Ui extends JFrame {
         JScrollPane scrollConsola = new JScrollPane(consola);
         panelConsola.add(scrollConsola, BorderLayout.CENTER);
 
+        // tabla de simbolos (derecha - semantico)
+        String[] encabezadosSim = { "nombre", "tipo", "valor" };
+        modeloTablaSimbolos = new DefaultTableModel(encabezadosSim, 0);
+        JTable tablaSimbolos = new JTable(modeloTablaSimbolos);
+        JScrollPane scrollTablaSim = new JScrollPane(tablaSimbolos);
+        tablaSimbolos.setDefaultEditor(Object.class, null); // no editable
+        // Panel con boton de simbolos
+        JPanel panelTablaSim = new JPanel(new BorderLayout());
+        btnSimbolos = new JButton("Simbolos");
+        panelTablaSim.add(btnSimbolos, BorderLayout.NORTH);
+        panelTablaSim.add(scrollTablaSim, BorderLayout.CENTER);
+        panelCodigo.add(panelTablaSim);
+
         btnTokens.addActionListener(e -> {
             try {
                 analizarTokens();
@@ -99,13 +115,20 @@ public class Ui extends JFrame {
                 e1.printStackTrace();
             }
         });
+        btnSimbolos.addActionListener(e -> {
+            try {
+                analizarSimbolos();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
     }
 
     public void analizarTokens() throws Exception {
         modeloTablaTokens.setRowCount(0); // limpia tabla
 
         String codigo = areaCodigo.getText();
-        miEscaner scanner = new miEscaner(codigo);
+        scanner = new miEscaner(codigo);
 
         try {
             while (!scanner.getToken(true).equals("")) {
@@ -129,7 +152,7 @@ public class Ui extends JFrame {
         modeloTablaEst.setRowCount(0); // limpia tabla
 
         String codigo = areaCodigo.getText();
-        Parser parser = new Parser(codigo);
+        parser = new Parser(codigo);
 
         try {
             consola.setText("");
@@ -145,6 +168,30 @@ public class Ui extends JFrame {
 
         for (String estatuto : estatutos) {
             modeloTablaEst.addRow(new Object[] { estatuto });
+        }
+    }
+
+    public void analizarSimbolos() throws Exception {
+        modeloTablaSimbolos.setRowCount(0); // limpia tabla
+
+        ArrayList<String> tiposTokens = parser.getTokens();
+        ArrayList<String> naturalTokens = parser.getTokensNaturales();
+        HashMap<String, Variables> tabla = new HashMap<>();
+
+        Semantico semantico = new Semantico(tiposTokens, naturalTokens);
+        semantico.AnalizarTokens();
+        tabla = semantico.getTablaSimbolos();
+
+        for (String key : tabla.keySet()) {
+            Variables variable = tabla.get(key);
+            // verificar si el tipo de dato es un int o un dou
+            if (variable.getTipo().equals("int")) {
+                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorInt() });
+            } else if (variable.getTipo().equals("dou")) {
+                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorDouble() });
+            } else {
+                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorStr() });
+            }
         }
     }
 

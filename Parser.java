@@ -40,7 +40,7 @@ public class Parser extends IOException {
             this.token = "Num";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
-        } else if (scanner.getTipoToken().equals("dou")) {
+        } else if (scanner.getTipoToken().equals("FRACC")) {
             this.token = "FRACC";
             System.out.println("Token: " + this.token);
             tokens.add(this.token);
@@ -84,9 +84,7 @@ public class Parser extends IOException {
             S();
             tokens.remove(tokens.size() - 1);
             tokensNaturales.remove(tokensNaturales.size() - 1);
-            semantico = new Semantico(tokens, tokensNaturales);
-            semantico.AnalizarTokens();
-            semantico.AnalizarValorTokens();
+
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

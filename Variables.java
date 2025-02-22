@@ -28,7 +28,7 @@ public class Variables {
     public Variables(String tipo, String valor) {
         this.tipo = tipo;
         this.valorStr = valor;
-        procesarValor(valor);
+        // procesarValor(valor);
     }
 
     // Constructor para strings con representación hex/bin
@@ -88,6 +88,26 @@ public class Variables {
 
     public String getValorBin() {
         return valorBin;
+    }
+
+    public void setValorStr(String valorStr) {
+        this.valorStr = valorStr;
+    }
+
+    public void setValorInt(int valorInt) {
+        this.valorInt = valorInt;
+    }
+
+    public void setValorDouble(double valorDouble) {
+        this.valorDouble = valorDouble;
+    }
+
+    public void setValorHex(String valorHex) {
+        this.valorHex = valorHex;
+    }
+
+    public void setValorBin(String valorBin) {
+        this.valorBin = valorBin;
     }
 
     @Override

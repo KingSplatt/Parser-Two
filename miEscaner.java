@@ -108,7 +108,7 @@ public class miEscaner extends IOException {
             if (!tokenValido) {
                 if (this.tokenActual.matches("[0-9]+\\.[0-9]+")) {
                     tokenValido = true;
-                    setTipoToken("dou");
+                    setTipoToken("FRACC");
                     tiposTokens.add(tipoToken);
                     naturalTokens.add(tokenActual);
                 }
