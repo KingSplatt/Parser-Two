@@ -1,57 +1,98 @@
 public class Variables {
     private String tipo;
-    private String valor;
-    // valor en hexadecimal
+    private String valorStr;
+    private int valorInt;
+    private double valorDouble;
     private String valorHex;
     private String valorBin;
 
-    public Variables(String nombre, String tipo, String valor) {
+    // Constructor para enteros
+    public Variables(String tipo, int valor) {
         this.tipo = tipo;
-        this.valor = valor;
+        this.valorInt = valor;
+        this.valorDouble = valor;
+        this.valorStr = String.valueOf(valor);
+        generarRepresentaciones(valor);
     }
 
-    public Variables(String nombre, String tipo, String valor, String valorHex, String valorBin) {
+    // Constructor para doubles
+    public Variables(String tipo, double valor) {
         this.tipo = tipo;
-        this.valor = valor;
+        this.valorDouble = valor;
+        this.valorInt = (int) valor; // Truncamos el double a int
+        this.valorStr = String.valueOf(valor);
+        generarRepresentaciones(this.valorInt); // Hex y bin basado en el entero
+    }
+
+    // Constructor para strings
+    public Variables(String tipo, String valor) {
+        this.tipo = tipo;
+        this.valorStr = valor;
+        procesarValor(valor);
+    }
+
+    // Constructor para strings con representación hex/bin
+    public Variables(String tipo, String valor, String valorHex, String valorBin) {
+        this.tipo = tipo;
+        this.valorStr = valor;
         this.valorHex = valorHex;
         this.valorBin = valorBin;
+        procesarValor(valor);
     }
 
+    // Procesa el valor si es convertible a número
+    private void procesarValor(String valor) {
+        try {
+            if (valor.contains(".")) {
+                this.valorDouble = Double.parseDouble(valor);
+                this.valorInt = (int) this.valorDouble;
+            } else {
+                this.valorInt = Integer.parseInt(valor);
+                this.valorDouble = this.valorInt;
+            }
+            generarRepresentaciones(this.valorInt);
+        } catch (NumberFormatException e) {
+            this.valorInt = 0;
+            this.valorDouble = 0.0;
+            this.valorHex = "N/A";
+            this.valorBin = "N/A";
+        }
+    }
+
+    // Genera las representaciones hex y bin
+    private void generarRepresentaciones(int valor) {
+        this.valorHex = "0x" + Integer.toHexString(valor).toUpperCase();
+        this.valorBin = "0b" + Integer.toBinaryString(valor);
+    }
+
+    // Getters
     public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public String getValorStr() {
+        return valorStr;
     }
 
-    public String getValor() {
-        return valor;
+    public int getValorInt() {
+        return valorInt;
     }
 
-    public void setValor(String valor) {
-        this.valor = valor;
+    public double getValorDouble() {
+        return valorDouble;
     }
 
     public String getValorHex() {
         return valorHex;
     }
 
-    public void setValorHex(String valorHex) {
-        this.valorHex = valorHex;
-    }
-
     public String getValorBin() {
         return valorBin;
     }
 
-    public void setValorBin(String valorBin) {
-        this.valorBin = valorBin;
-    }
-
     @Override
     public String toString() {
-        return "Variables [tipo=" + tipo + ", valor=" + valor + ", valorHex=" + valorHex + ", valorBin=" + valorBin
-                + "]";
+        return "Variables [tipo=" + tipo + ", valorStr=" + valorStr + ", valorInt=" + valorInt +
+                ", valorDouble=" + valorDouble + ", valorHex=" + valorHex + ", valorBin=" + valorBin + "]";
     }
 }

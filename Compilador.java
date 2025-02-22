@@ -10,8 +10,8 @@ public class Compilador {
                 "}\r\n" + //
                 "}";
         String codigo2 = "hola dou ; pedro int ; IF hola == pedro { print 11 + 41 } ELSE { IF hola == pedro { print 12 / 41 } }";
-        String codigo3 = "hola dou ; hola int ; hola = 24 + 12.4";
-        Parser parser = new Parser(codigo);
+        String codigo3 = "hola int ; pedro int ; hola = pedro + 1";
+        Parser parser = new Parser(codigo3);
         parser.P();
     }
 }
