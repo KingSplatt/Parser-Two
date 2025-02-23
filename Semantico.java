@@ -32,6 +32,10 @@ public class Semantico extends IOException {
                     // Si la variable ya fue declarada, recuperar su tipo
                     if (tablaSimbolos.containsKey(nombreVariable)) {
                         tipodedato = tablaSimbolos.get(nombreVariable).getTipo();
+                    } else {
+                        if (tipodedato.equals("")) {
+                            throw new Exception("Error: Variable no declarada: " + nombreVariable);
+                        }
                     }
 
                     // Verificar si hay una asignación (ID = valor)
