@@ -1,7 +1,8 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Semantico {
+public class Semantico extends IOException {
     private ArrayList<String> tokens, tokensNaturales;
     private HashMap<String, Variables> tablaSimbolos;
 
@@ -11,63 +12,81 @@ public class Semantico {
         this.tablaSimbolos = new HashMap<>();
     }
 
-    public void AnalizarTokens() {
-        for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).equals("ID")) {
-                String nombreVariable = tokensNaturales.get(i);
-                String tipodedato = "";
-                double valorFinal = 0.0;
-                boolean esOperacion = false;
+    public void AnalizarTokens() throws Exception {
+        try {
+            for (int i = 0; i < tokens.size(); i++) {
+                if (tokens.get(i).equals("ID")) {
+                    String nombreVariable = tokensNaturales.get(i);
+                    String tipodedato = "";
+                    double valorFinal = 0.0;
+                    boolean esOperacion = false;
 
-                // Verificar si el siguiente token es un tipo de dato
-                if (i + 1 < tokens.size()) {
-                    String tipo = tokens.get(i + 1);
-                    if (tipo.equals("int") || tipo.equals("dou") || tipo.equals("FRACC") || tipo.equals("string")) {
-                        tipodedato = tipo;
-                    }
-                }
-
-                // Si la variable ya fue declarada, recuperar su tipo
-                if (tablaSimbolos.containsKey(nombreVariable)) {
-                    tipodedato = tablaSimbolos.get(nombreVariable).getTipo();
-                }
-
-                // Verificar si hay una asignación (ID = valor)
-                if (i + 2 < tokens.size() && tokens.get(i + 1).equals("=")) {
-                    int j = i + 2; // Posición después del '='
-                    valorFinal = procesarExpresion(j);
-                    esOperacion = true;
-                }
-
-                // Si la variable ya existe, solo actualizar su valor
-                if (tablaSimbolos.containsKey(nombreVariable)) {
-                    Variables variableExistente = tablaSimbolos.get(nombreVariable);
-                    if (esOperacion) {
-                        // verifica si el tipo de dato es int, dou o string
-                        if (tipodedato.equals("int")) {
-                            variableExistente.setValorInt((int) valorFinal);
-                        } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
-                            variableExistente.setValorDouble(valorFinal);
-                        } else {
-                            variableExistente.setValorStr(tokensNaturales.get(i + 2));
-                            tokensNaturales.remove(i + 2);
-                            tokens.remove(i + 2);
+                    // Verificar si el siguiente token es un tipo de dato
+                    if (i + 1 < tokens.size()) {
+                        String tipo = tokens.get(i + 1);
+                        if (tipo.equals("int") || tipo.equals("dou") || tipo.equals("string")) {
+                            tipodedato = tipo;
                         }
                     }
-                } else {
-                    // Crear la variable solo si no existe
-                    Variables variable;
-                    if (tipodedato.equals("int")) {
-                        variable = new Variables(tipodedato, (int) valorFinal);
-                    } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
-                        variable = new Variables(tipodedato, valorFinal);
-                    } else {
-                        variable = new Variables(tipodedato, "");
-                    }
-                    tablaSimbolos.put(nombreVariable, variable);
-                }
 
+                    // Si la variable ya fue declarada, recuperar su tipo
+                    if (tablaSimbolos.containsKey(nombreVariable)) {
+                        tipodedato = tablaSimbolos.get(nombreVariable).getTipo();
+                    }
+
+                    // Verificar si hay una asignación (ID = valor)
+                    if (i + 2 < tokens.size() && tokens.get(i + 1).equals("=")) {
+                        if (tipodedato.equals("string") && !tokens.get(i + 2).equals("ID")) {
+                            throw new Exception("Error no puedes asignar a esta variable: " + nombreVariable
+                                    + " de tipo: " + tipodedato + " un valor: " + tokensNaturales.get(i + 2));
+                        }
+                        if (tipodedato.equals("int") && tokens.get(i + 2).equals("ID")) {
+                            throw new Exception("Error no puedes asignar a esta variable: " + nombreVariable
+                                    + " de tipo: " + tipodedato + " un valor: " + tokensNaturales.get(i + 2));
+                        }
+                        if (tipodedato.equals("dou") && tokens.get(i + 2).equals("ID")) {
+                            throw new Exception("Error no puedes asignar a esta variable: " + nombreVariable
+                                    + " de tipo: " + tipodedato + " un valor: " + tokensNaturales.get(i + 2));
+                        }
+                        int j = i + 2; // Posición después del '='
+                        valorFinal = procesarExpresion(j);
+                        esOperacion = true;
+                    }
+
+                    // Si la variable ya existe, solo actualizar su valor
+                    if (tablaSimbolos.containsKey(nombreVariable)) {
+                        Variables variableExistente = tablaSimbolos.get(nombreVariable);
+                        if (esOperacion) {
+                            // verifica si el tipo de dato es int, dou o string
+                            if (tipodedato.equals("int")) {
+                                variableExistente.setValorInt((int) valorFinal);
+                            } else if (tipodedato.equals("dou") || tipodedato.equals("FRACC")) {
+                                variableExistente.setValorDouble(valorFinal);
+                            } else {
+                                System.out.println("llegue aqui");
+                                variableExistente.setValorStr(tokensNaturales.get(i + 2));
+                                tokensNaturales.remove(i + 2);
+                                tokens.remove(i + 2);
+                            }
+                        }
+                    } else {
+                        // Crear la variable solo si no existe
+                        Variables variable;
+                        if (tipodedato.equals("int")) {
+                            variable = new Variables(tipodedato, (int) valorFinal);
+                        } else if (tipodedato.equals("dou")) {
+                            variable = new Variables(tipodedato, valorFinal);
+                        } else {
+                            variable = new Variables(tipodedato, "");
+                        }
+                        tablaSimbolos.put(nombreVariable, variable);
+                    }
+
+                }
             }
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -79,7 +98,7 @@ public class Semantico {
             String token = tokens.get(i);
             String valor = tokensNaturales.get(i);
             // verificar si es un numero o una variable
-            if (token.equals("Num") || token.equals("ID") || token.equals("dou") || token.equals("FRACC")) {
+            if (token.equals("Num") || token.equals("ID") || token.equals("dou")) {
                 double numero;
                 if (token.equals("ID")) {
                     numero = buscarValorVariableDouble(valor);
@@ -108,6 +127,9 @@ public class Semantico {
                     resultado *= numero;
                     break;
                 case '/':
+                    if (numero == 0) {
+                        throw new ArithmeticException("Error: División por cero");
+                    }
                     resultado /= numero;
                     break;
             }
@@ -121,25 +143,6 @@ public class Semantico {
             return tablaSimbolos.get(nombreVariable).getValorDouble();
         }
         return 0.0;
-    }
-
-    public void AnalizarEstatutos() {
-        for (String token : tokens) {
-            switch (token) {
-                case "IF":
-                    // Analizar IF
-                    break;
-                case "ELSE":
-                    // Analizar ELSE
-                    break;
-                case "print":
-                    // Analizar print
-                    break;
-                case "read":
-                    // Analizar read
-                    break;
-            }
-        }
     }
 
     public void AnalizarValorTokens() {

@@ -178,20 +178,25 @@ public class Ui extends JFrame {
         ArrayList<String> naturalTokens = parser.getTokensNaturales();
         HashMap<String, Variables> tabla = new HashMap<>();
 
-        Semantico semantico = new Semantico(tiposTokens, naturalTokens);
-        semantico.AnalizarTokens();
-        tabla = semantico.getTablaSimbolos();
+        try {
+            Semantico semantico = new Semantico(tiposTokens, naturalTokens);
+            semantico.AnalizarTokens();
+            tabla = semantico.getTablaSimbolos();
 
-        for (String key : tabla.keySet()) {
-            Variables variable = tabla.get(key);
-            // verificar si el tipo de dato es un int o un dou
-            if (variable.getTipo().equals("int")) {
-                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorInt() });
-            } else if (variable.getTipo().equals("dou")) {
-                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorDouble() });
-            } else {
-                modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorStr() });
+            for (String key : tabla.keySet()) {
+                Variables variable = tabla.get(key);
+                // verificar si el tipo de dato es un int o un dou
+                if (variable.getTipo().equals("int")) {
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorInt() });
+                } else if (variable.getTipo().equals("dou")) {
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorDouble() });
+                } else {
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorStr() });
+                }
             }
+        } catch (Exception e) {
+            consola.setText(e.getMessage());
+            consola.setForeground(Color.RED);
         }
     }
 

@@ -16,7 +16,7 @@ public class Compilador {
                 "}";
         String codigo3 = "hola int ; pedro dou ; pedro = 12 * 5";
         String codigo4 = "hola int ; pedro string ; pedro = jairuvb";
-        Parser parser = new Parser(codigo2);
+        Parser parser = new Parser(codigo4);
         parser.P();
     }
 }

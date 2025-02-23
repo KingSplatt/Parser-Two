@@ -4,7 +4,6 @@ import java.util.ArrayList;
 public class Parser extends IOException {
     private String token;
     private miEscaner scanner;
-    private Semantico semantico;
     private final String M_id = "ID",
             M_int = "int",
             M_string = "string",
@@ -84,6 +83,8 @@ public class Parser extends IOException {
             S();
             tokens.remove(tokens.size() - 1);
             tokensNaturales.remove(tokensNaturales.size() - 1);
+            // Semantico semantico = new Semantico(tokens, tokensNaturales);
+            // semantico.AnalizarTokens();
 
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -141,7 +142,7 @@ public class Parser extends IOException {
                 OPER();
             } else if (this.token.equals(M_read)) {
                 comer(M_read);
-                comer(M_id);
+                OPER();
             } else {
                 throw new Exception("Se esperaba un estatuto (IF, ID, print, read)");
             }
