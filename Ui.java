@@ -194,6 +194,8 @@ public class Ui extends JFrame {
                     modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorStr() });
                 }
             }
+            consola.setText("Análisis semántico correcto");
+            consola.setForeground(Color.BLUE);
         } catch (Exception e) {
             consola.setText(e.getMessage());
             consola.setForeground(Color.RED);
