@@ -238,25 +238,8 @@ public class Ui extends JFrame {
             codigoIntermedio.CrearCodigoIntermedio();
             // semantico.AnalizarTokens();
             // tabla = semantico.getTablaSimbolos();
-            String codigoObjeto = codigoIntermedio.GenerarCodigoIntermedio();
-            areaCodigoData.setText(".MODEL SMALL\n");
-            areaCodigoData.append(".STACK\n");
-            areaCodigoData.append(codigoObjeto);
-            // for (String key : tabla.keySet()) {
-            // Variables variable = tabla.get(key);
-
-            // // verificar si el tipo de dato es un int o un dou
-            // if (variable.getTipo().equals("int")) {
-            // int valor = variable.getValorInt();
-            // System.out.println(valor);
-            // areaCodigoData.append(key + " DW " + variable.getValorInt() + "\n");
-            // } else if (variable.getTipo().equals("dou")) {
-            // areaCodigoData.append(key + " DD " + variable.getValorDouble() + "\n");
-            // } else {
-            // areaCodigoData.append(key + " DB " + variable.getValorStr() + "\n");
-            // }
-            // }
-            areaCodigoData.append(".CODE\n");
+            String codigoIntermedioData = codigoIntermedio.PuntoData();
+            areaCodigoData.append(codigoIntermedioData);
             consola.setText("Análisis semántico correcto");
             consola.setForeground(Color.BLUE);
         } catch (Exception e) {
