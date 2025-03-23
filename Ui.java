@@ -197,21 +197,23 @@ public class Ui extends JFrame {
         ArrayList<String> tiposTokens = parser.getTokens();
         ArrayList<String> naturalTokens = parser.getTokensNaturales();
         HashMap<String, Variables> tabla = new HashMap<>();
-
         try {
             Semantico semantico = new Semantico(tiposTokens, naturalTokens);
             semantico.AnalizarTokens();
             tabla = semantico.getTablaSimbolos();
-
+            consola.setText(tabla.toString());
             for (String key : tabla.keySet()) {
                 Variables variable = tabla.get(key);
                 // verificar si el tipo de dato es un int o un dou
                 if (variable.getTipo().equals("int")) {
-                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorInt() });
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(),
+                            variable.getValorInt() });
                 } else if (variable.getTipo().equals("dou")) {
-                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorDouble() });
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(),
+                            variable.getValorDouble() });
                 } else {
-                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(), variable.getValorStr() });
+                    modeloTablaSimbolos.addRow(new Object[] { key, variable.getTipo(),
+                            variable.getValorStr() });
                 }
             }
             consola.setText("Análisis semántico correcto");
