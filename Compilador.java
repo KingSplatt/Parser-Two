@@ -26,6 +26,7 @@ public class Compilador {
         Semantico semantico = new Semantico(tiposTokens, naturalTokens);
         semantico.AnalizarTokens();
         tabla = semantico.getTablaSimbolos();
+        CodigoIntermedio CI = new CodigoIntermedio(tiposTokens, naturalTokens);
         System.out.println(tabla);
     }
 }
