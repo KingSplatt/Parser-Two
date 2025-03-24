@@ -15,6 +15,7 @@ public class Ui extends JFrame {
     private JLabel lblConsola;
     private Parser parser;
     private miEscaner scanner;
+    private Semantico semantico;
 
     public Ui() {
         setTitle("Lenguaje: Splatt");
@@ -105,7 +106,7 @@ public class Ui extends JFrame {
         // agregar un panel con codigo objeto de turbo gui assembler (.DATA)
         // Panel con boton de simbolos
         JPanel panelCodigoObjeto = new JPanel(new BorderLayout());
-        btnCodigoObjeto = new JButton(".DATA");
+        btnCodigoObjeto = new JButton(".C.I");
         areaCodigoData = new JTextArea();
         JScrollPane scrollCodigoData = new JScrollPane(areaCodigoData);
         panelCodigoObjeto.add(scrollCodigoData, BorderLayout.CENTER);
@@ -137,7 +138,7 @@ public class Ui extends JFrame {
         });
         btnCodigoObjeto.addActionListener(e -> {
             try {
-                analizarCodigoObjeto();
+                analizarCodigoIntermedio();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -198,7 +199,7 @@ public class Ui extends JFrame {
         ArrayList<String> naturalTokens = parser.getTokensNaturales();
         HashMap<String, Variables> tabla = new HashMap<>();
         try {
-            Semantico semantico = new Semantico(tiposTokens, naturalTokens);
+            semantico = new Semantico(tiposTokens, naturalTokens);
             semantico.AnalizarTokens();
             tabla = semantico.getTablaSimbolos();
             consola.setText(tabla.toString());
@@ -224,23 +225,24 @@ public class Ui extends JFrame {
         }
     }
 
-    public void analizarCodigoObjeto() throws Exception {
+    public void analizarCodigoIntermedio() throws Exception {
         String codigo = areaCodigo.getText();
-        parser = new Parser(codigo);
-
         try {
+            areaCodigoData.setText("");
             consola.setText("");
-            parser.P();
-            ArrayList<String> estatutos = parser.getTokens();
+            ArrayList<String> tiposTokens = parser.getTokens();
             ArrayList<String> naturalTokens = parser.getTokensNaturales();
-            // HashMap<String, Variables> tabla = new HashMap<>();
-
-            // Semantico semantico = new Semantico(estatutos, naturalTokens);
-            CodigoIntermedio codigoIntermedio = new CodigoIntermedio(estatutos, naturalTokens);
-            codigoIntermedio.CrearCodigoIntermedio();
+            System.out.println("tiposTokens: " + tiposTokens.toString());
+            System.out.println("naturalTokens: " + naturalTokens.toString());
+            semantico = new Semantico(tiposTokens, naturalTokens);
+            semantico.AnalizarTokens();
+            boolean condicional = semantico.getEntroCondicional();
+            int indiceEstatutos = semantico.getIndiceEstatutos();
+            CodigoIntermedio codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
             // semantico.AnalizarTokens();
             // tabla = semantico.getTablaSimbolos();
             String codigoIntermedioData = codigoIntermedio.PuntoData();
+            System.out.println("aaa" + codigoIntermedioData);
             areaCodigoData.append(codigoIntermedioData);
             consola.setText("Análisis semántico correcto");
             consola.setForeground(Color.BLUE);

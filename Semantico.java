@@ -6,7 +6,7 @@ public class Semantico extends IOException {
     private ArrayList<String> tokens, tokensNaturales;
     private HashMap<String, Variables> tablaSimbolos;
     private boolean entroCondicional = false;
-    private int indiceAnalizar = 0;
+    private int indiceAnalizar, indiceEstatutos = 0;
 
     public Semantico(ArrayList<String> tokensRecibidos, ArrayList<String> tokensNaturalesRecibidos) {
         this.tokens = tokensRecibidos;
@@ -101,6 +101,7 @@ public class Semantico extends IOException {
 
                 }
                 if (tokens.get(indiceAnalizar).equals("IF")) {
+                    indiceEstatutos = indiceAnalizar;
                     double valorFinal = 0.0;
                     int j = indiceAnalizar + 1;
                     boolean resultado = procesarCondicional(j);
@@ -309,5 +310,9 @@ public class Semantico extends IOException {
 
     public Boolean getEntroCondicional() {
         return entroCondicional;
+    }
+
+    public Integer getIndiceEstatutos() {
+        return indiceEstatutos;
     }
 }

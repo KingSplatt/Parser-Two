@@ -16,7 +16,7 @@ public class Compilador {
                 "pero = 12 + 1\r\n" + //
                 "}\r\n" + //
                 "";
-        String codigo3 = "hola int ; pedro int ; pedro = 12 * 5";
+        String codigo3 = "hola int ; pedro int ; print 12 + 5";
         String codigo4 = "hola int ; pedro string ; pedro = jairuvb";
         Parser parser = new Parser(codigo3);
         parser.P();
@@ -25,8 +25,10 @@ public class Compilador {
         HashMap<String, Variables> tabla = new HashMap<>();
         Semantico semantico = new Semantico(tiposTokens, naturalTokens);
         semantico.AnalizarTokens();
+        boolean error = semantico.getEntroCondicional();
         tabla = semantico.getTablaSimbolos();
-        CodigoIntermedio CI = new CodigoIntermedio(tiposTokens, naturalTokens);
-        System.out.println(tabla);
+        CodigoIntermedio CI = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
+        String CII = CI.PuntoData();
+        System.out.println(CII);
     }
 }
