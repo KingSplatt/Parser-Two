@@ -28,6 +28,7 @@ public class CodigoIntermedio {
         codigoIntermedio.append(String.format(formato, "", ".MODEL", "SMALL"));
         codigoIntermedio.append(String.format(formato, "", ".STACK", ""));
         codigoIntermedio.append(String.format(formato, "", ".DATA", ""));
+        codigoIntermedio.append(String.format(formato, "", ".386", ""));
         for (String key : tablaSimbolos.keySet()) {
             Variables variable = tablaSimbolos.get(key);
             String tipo = variable.getTipo();
@@ -137,30 +138,16 @@ public class CodigoIntermedio {
     }
 
     public void impresionNumeroOperadorNumero(String numero1, String operador, String numero2) {
-        codigoIntermedio.append(String.format(formato, "MOV", "Al,", numero1));
-        if (operador.equals("+")) {
-            codigoIntermedio.append(String.format(formato, "ADD", "Al,", numero2));
-        } else if (operador.equals("-")) {
-            codigoIntermedio.append(String.format(formato, "SUB", "Al,", numero2));
-        } else if (operador.equals("*")) {
-            codigoIntermedio.append(String.format(formato, "IMUL", "Al,", numero2));
-        } else if (operador.equals("/")) {
-            codigoIntermedio.append(String.format(formato, "MOV", "DX,", "0"));
-            codigoIntermedio.append(String.format(formato, "IDIV", "Al,", numero2));
+        boolean n1,n2;n1 = esNumeroAL(numero1);n2 = esNumeroAL(numero2);
+        boolean n3,n4;n3 = esNumeroAX(numero1);n4 = esNumeroAX(numero2);
+        //boolean n5,n6;n5 = esNumeroEAX(numero1);n6 = esNumeroEAX(numero2);
+        if (n1 && n2) {
+            impresionAL(numero1, operador, numero2);
+        } else if (n3 && n4) {
+            impresionAX(numero1, operador, numero2);
+        } else {
+            impresionEAX(numero1, operador, numero2);
         }
-
-        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "0"));
-        codigoIntermedio.append(String.format(formato, "MOV", "BL,", "10"));
-        codigoIntermedio.append(String.format(formato, "DIV", "BL", ""));
-        codigoIntermedio.append(String.format(formato, "MOV", "BH,", "AH"));
-        codigoIntermedio.append(String.format(formato, "MOV", "DL,", "AL"));
-        codigoIntermedio.append(String.format(formato, "ADD", "DL,", "30H"));
-        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
-        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
-
-        codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BH"));
-        codigoIntermedio.append(String.format(formato, "ADD", "DL,", "30H"));
-        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
     }
 
     public void Comparacion(String variable1, String comparador, String variable2) {
@@ -180,16 +167,14 @@ public class CodigoIntermedio {
                 // Handle type conversion between 16-bit and 32-bit integers
                 if (tipo1.equals("DW")) {
                     codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable1));
-                    codigoIntermedio.append(String.format(formato, "CWD", "", ""));
-                    codigoIntermedio.append(String.format(formato, "MOV", "BX,", "WORD PTR " + variable2));
-                    codigoIntermedio.append(String.format(formato, "MOV", "CX,", "WORD PTR " + variable2 + "+2"));
-                    codigoIntermedio.append(String.format(formato, "CMP", "DX,", "CX"));
+                    codigoIntermedio.append(String.format(formato, "MOVZX", "EAX,", "AX"));
+                    codigoIntermedio.append(String.format(formato, "MOV", "EBX,", variable2));
+                    codigoIntermedio.append(String.format(formato, "CMP", "EAX,", "EBX"));
                 } else if (tipo1.equals("DD")) {
                     codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable2));
-                    codigoIntermedio.append(String.format(formato, "CWD", "", ""));
-                    codigoIntermedio.append(String.format(formato, "MOV", "BX,", "WORD PTR " + variable1));
-                    codigoIntermedio.append(String.format(formato, "MOV", "CX,", "WORD PTR " + variable1 + "+2"));
-                    codigoIntermedio.append(String.format(formato, "CMP", "CX,", "DX"));
+                    codigoIntermedio.append(String.format(formato, "MOVZX", "EAX,", "AX"));
+                    codigoIntermedio.append(String.format(formato, "MOV", "EBX,", variable1));
+                    codigoIntermedio.append(String.format(formato, "CMP", "EAX,", "EBX"));
 
                 }
             } else if (tipo1.equals("DB") && tipo2.equals("DB")) {
@@ -307,5 +292,152 @@ public class CodigoIntermedio {
 
     public HashMap<String, Variables> getPuntoCodeDatos() {
         return PuntoCodeDatos;
+    }
+
+    private boolean esNumeroAL(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 255;
+    }
+
+    private boolean esNumeroAX(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 65535;
+    }
+
+    private boolean esNumeroEAX(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 4294967295L;
+    }
+
+    private void impresionAL(String numero1, String operador, String numero2) {
+        if(operador.equals("*") || operador.equals("/")){
+            codigoIntermedio.append(String.format(formato, "MOV", "AX,", numero1));
+        }else{
+            codigoIntermedio.append(String.format(formato, "MOV", "AL,", numero1));
+        }
+        if (operador.equals("+")) {
+            codigoIntermedio.append(String.format(formato, "ADD", "AL,", numero2));
+        } else if (operador.equals("-")) {
+            codigoIntermedio.append(String.format(formato, "SUB", "AL,", numero2));
+        } else if (operador.equals("*")) {
+            codigoIntermedio.append(String.format(formato, "IMUL", "AX,", numero2));
+        } else if (operador.equals("/")) {
+            codigoIntermedio.append(String.format(formato, "MOV", "DL,", numero2));
+            codigoIntermedio.append(String.format(formato, "IDIV", "DL", ""));
+        }
+        impresionResultado(numero1,operador, numero2);
+    }
+
+    private void impresionAX(String numero1, String operador, String numero2) {
+        codigoIntermedio.append(String.format(formato, "MOV", "AX,", numero1));
+        if (operador.equals("+")) {
+            codigoIntermedio.append(String.format(formato, "ADD", "AX,", numero2));
+        } else if (operador.equals("-")) {
+            codigoIntermedio.append(String.format(formato, "SUB", "AX,", numero2));
+        } else if (operador.equals("*")) {
+            codigoIntermedio.append(String.format(formato, "IMUL", "AX,", numero2));
+        } else if (operador.equals("/")) {
+            codigoIntermedio.append(String.format(formato, "MOV", "DX,", "0"));
+            codigoIntermedio.append(String.format(formato, "IDIV", "AX,", numero2));
+        }
+        impresionResultado(numero1,operador ,numero2);
+
+
+    }
+    private void impresionEAX(String numero1, String operador, String numero2) {
+        codigoIntermedio.append(String.format(formato, "MOV", "EAX,", numero1));
+        if (operador.equals("+")) {
+            codigoIntermedio.append(String.format(formato, "ADD", "EAX,", numero2));
+        } else if (operador.equals("-")) {
+            codigoIntermedio.append(String.format(formato, "SUB", "EAX,", numero2));
+        } else if (operador.equals("*")) {
+            codigoIntermedio.append(String.format(formato, "IMUL", "EAX,", numero2));
+        } else if (operador.equals("/")) {
+            codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "0"));
+            codigoIntermedio.append(String.format(formato, "IDIV", "EAX,", numero2));
+        }
+
+        // Convertir EAX a decimal y mostrarlo
+        codigoIntermedio.append(String.format(formato, "MOV", "ECX,", "10"));
+        codigoIntermedio.append(String.format(formato, "XOR", "EDX,", "EDX"));
+        codigoIntermedio.append(String.format(formato, "DIV", "ECX", ""));
+        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
+        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+        codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "EAX"));
+        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
+        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+
+        codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "EAX"));
+        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
+        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+    }
+    //pendiente 
+    private void impresionResultado(String operador1,String operador, String operador2) {
+        int resultado = Integer.parseInt(operador1) * Integer.parseInt(operador2);
+        String resultadoStr = String.valueOf(resultado);
+        int tamañoDivisor = resultadoStr.length();
+        String divisor = "1";
+        for (int i = 1; i < tamañoDivisor; i++) {
+            divisor += "0";
+        }
+        if(operador.equals("*")){
+            for (int i = 0; i < tamañoDivisor; i++) {
+                if(divisor.equals("0") || divisor.equals("1") || divisor.equals("10") ){
+                    continue;
+                }
+                codigoIntermedio.append(String.format(formato, "MOV", "BL,", divisor));
+                divisor = String.valueOf(Integer.parseInt(divisor) / 10);
+                codigoIntermedio.append(String.format(formato, "", "DIV", "BL"));
+                codigoIntermedio.append(String.format(formato, "MOV", "BL,", "AL"));
+                codigoIntermedio.append(String.format(formato, "MOV", " CL,", "AH"));
+    
+                codigoIntermedio.append(String.format(formato, "OR", "BL,", "00110000B"));
+    
+                codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BL"));
+                codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+                codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+            }
+            codigoIntermedio.append(String.format(formato, "MOV", "AL,", "CL"));
+
+        }else if(operador.equals("/")){
+            // Convertir EAX a decimal y mostrarlo
+            codigoIntermedio.append(String.format(formato, "MOV", "BL,", "AL"));
+            codigoIntermedio.append(String.format(formato, "MOV", "CL,", "AH"));
+
+            codigoIntermedio.append(String.format(formato, "OR", "BL,", "00110000B"));
+            codigoIntermedio.append(String.format(formato, "OR", "CL,", "00110000B"));
+
+            codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BL"));
+            codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+            codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+    
+            codigoIntermedio.append(String.format(formato, "MOV", "DL,", "CL"));
+            codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+            codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+            return;
+        }
+
+        codigoIntermedio.append(String.format(formato, "CBW", "", ""));
+        codigoIntermedio.append(String.format(formato, "MOV", "BL,", "10"));
+        codigoIntermedio.append(String.format(formato, "DIV", "BL", ""));
+
+        codigoIntermedio.append(String.format(formato, "MOV", "BL,", "AL"));
+        codigoIntermedio.append(String.format(formato, "MOV", "CL,", "AH"));
+
+        codigoIntermedio.append(String.format(formato, "OR", "BL,", "00110000B"));
+        codigoIntermedio.append(String.format(formato, "OR", "CL,", "00110000B"));
+
+        codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BL"));
+        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+
+        codigoIntermedio.append(String.format(formato, "MOV", "DL,", "CL"));
+        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+
+
     }
 }

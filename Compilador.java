@@ -16,7 +16,12 @@ public class Compilador {
                 "pero = 12 + 1\r\n" + //
                 "}\r\n" + //
                 "";
-        String codigo3 = "hola int ; pedro int ; print 12 + 5";
+        String codigo3 = "hola int ; pedro int ; IF pedro == hola {\r\n" + //
+                "pedro = 12 - 1\r\n" + //
+                "} ELSE {\r\n" + //
+                "pedro = 12 + 1\r\n" + //
+                "}\r\n" + //
+                "";
         String codigo4 = "hola int ; pedro string ; pedro = jairuvb";
         Parser parser = new Parser(codigo3);
         parser.P();
