@@ -73,6 +73,7 @@ public class CodigoIntermedio {
                     Comparacion(variable1, comparador, variable2);
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("ELSE")) {
+                    codigoIntermedio.append(String.format(formato, "JMP", "FINAL", ""));
                     codigoIntermedio.append(String.format(formato, "\tCONTINUA:", "", ""));
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("print")) {
@@ -103,7 +104,7 @@ public class CodigoIntermedio {
                 }
                 indiceComienzaEstatutos++;
             }
-            codigoIntermedio.append(String.format(formato, "", "", ""));
+            codigoIntermedio.append(String.format(formato, "\tFINAL:", "", ""));
             codigoIntermedio.append(String.format(formato, "", ".EXIT", ""));
             codigoIntermedio.append(String.format(formato, "MAIN", "ENDP", ""));
             codigoIntermedio.append(String.format(formato, "", "END", ""));
@@ -400,7 +401,9 @@ public class CodigoIntermedio {
                 codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
                 codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
             }
-            codigoIntermedio.append(String.format(formato, "MOV", "AL,", "CL"));
+            if(tamañoDivisor == 3){
+                codigoIntermedio.append(String.format(formato, "MOV", "AL,", "CL"));
+            }
 
         }else if(operador.equals("/")){
             // Convertir EAX a decimal y mostrarlo
