@@ -10,20 +10,16 @@ public class Compilador {
                 "print 12 + 1\r\n" + //
                 "}\r\n" + //
                 "";
-        String codigo2 = "a83 string ; b32 dou ; pero int ; IF pero == b32 {\r\n" + //
-                "a83 = jairu\r\n" + //
-                "} ELSE {\r\n" + //
-                "pero = 12 + 1\r\n" + //
-                "}\r\n" + //
-                "";
-        String codigo3 = "hola int ; pedro int ; IF pedro == hola {\r\n" + //
-                "pedro = 12 - 1\r\n" + //
-                "} ELSE {\r\n" + //
-                "pedro = 12 + 1\r\n" + //
-                "}\r\n" + //
-                "";
+        String codigo2 = "edad int ; altura int ; IF edad == altura {\r\n" + //
+                        "edad = 12 + 2\r\n" + //
+                        "}";
+        String codigo3 = "edad int ; altura int ; IF edad == altura {\r\n" + //
+                        "edad = 12 + 5\r\n" + //
+                        "} ELSE {\r\n" + //
+                        "print 2 * 3\r\n" + //
+                        "}";
         String codigo4 = "hola int ; pedro string ; pedro = jairuvb";
-        Parser parser = new Parser(codigo3);
+        Parser parser = new Parser(codigo2);
         parser.P();
         ArrayList<String> tiposTokens = parser.getTokens();
         ArrayList<String> naturalTokens = parser.getTokensNaturales();

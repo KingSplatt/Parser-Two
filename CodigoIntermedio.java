@@ -9,7 +9,7 @@ public class CodigoIntermedio {
     private String formato = "%-15s\t%-15s\t%-25s%n";
     // Formato de columnas: Nombre - Tipo - Valor
     private int indiceComienzaEstatutos = 0;
-    private Boolean entroCondicional;
+    private Boolean entroCondicional,acaboElse,hayElse;
 
     public CodigoIntermedio(Semantico semantico, ArrayList<String> tokens, ArrayList<String> tokensNaturales) {
         this.tablaSimbolos = semantico.getTablaSimbolos();
@@ -18,6 +18,8 @@ public class CodigoIntermedio {
         this.tokens = tokens;
         this.tokensNaturales = tokensNaturales;
         this.PuntoCodeDatos = new HashMap<String, Variables>();
+        this.acaboElse = false;
+        this.hayElse = false;
     }
 
     public void CrearCodigoIntermedio() throws Exception {
@@ -53,9 +55,21 @@ public class CodigoIntermedio {
         codigoIntermedio.append(String.format(formato, "MAIN", "PROC", "FAR"));
         codigoIntermedio.append(String.format(formato, "", ".STARTUP", ""));
         codigoIntermedio.append(String.format(formato, "", "", ""));
+        int completo = 0;
         try {
             while (indiceComienzaEstatutos < tokens.size()) {
                 // vericar si es una asignacion ID = Num + Num
+
+                if(completo == 2){
+                    break;
+                }
+                if(acaboElse){
+                    indiceComienzaEstatutos = tokens.indexOf("IF") + 5;
+                    completo += 1;
+                    acaboElse = false;
+                    codigoIntermedio.append(String.format(formato, "", "", ""));
+                    codigoIntermedio.append(String.format(formato, "\tCONTINUA:", "", ""));
+                }
                 if (tokens.get(indiceComienzaEstatutos).equals("ID")
                         && tokens.get(indiceComienzaEstatutos + 1).equals("=")) {
                     String variable = tokensNaturales.get(indiceComienzaEstatutos);
@@ -71,10 +85,27 @@ public class CodigoIntermedio {
                     String comparador = tokensNaturales.get(indiceComienzaEstatutos + 2);
                     String variable2 = tokensNaturales.get(indiceComienzaEstatutos + 3);
                     Comparacion(variable1, comparador, variable2);
+                    completo += 1;
+                    // if(!tokens.get(indiceComienzaEstatutos + 7).equals("ELSE")){
+                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
+                    // }else if(!tokens.get(indiceComienzaEstatutos + 6).equals("ELSE")){
+                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
+                    // }else if(!tokens.get(indiceComienzaEstatutos + 5).equals("ELSE")){
+                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
+                    // }
+                    if(!tokens.stream().anyMatch(token -> token.equals("ELSE"))){
+                        codigoIntermedio.append(String.format(formato, "\tCONTINUA:", "", ""));
+                    }
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("ELSE")) {
+                    if(acaboElse){
+                        indiceComienzaEstatutos = tokens.size() - 1;
+                    }
                     codigoIntermedio.append(String.format(formato, "JMP", "FINAL", ""));
                     codigoIntermedio.append(String.format(formato, "\tCONTINUA:", "", ""));
+                    if(acaboElse){
+                        indiceComienzaEstatutos = tokens.indexOf("IF") + 4;
+                    }
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("print")) {
                     String numero1 = tokensNaturales.get(indiceComienzaEstatutos + 1);
@@ -101,6 +132,11 @@ public class CodigoIntermedio {
                         codigoIntermedio.append(String.format(formato, "INT", "21H"));
                         codigoIntermedio.append(String.format(formato, "MOV", variable + ",", "AL"));
                     }
+                }
+                if(tokens.get(indiceComienzaEstatutos).equals("}") && hayElse){
+                    acaboElse = true;
+                    indiceComienzaEstatutos -= 1;
+                    codigoIntermedio.append(String.format(formato, "JMP", "FINAL", ""));
                 }
                 indiceComienzaEstatutos++;
             }
@@ -199,31 +235,28 @@ public class CodigoIntermedio {
         switch (comparador) {
             case "==":
                 codigoIntermedio.append(String.format(formato, "JE", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             case "!==":
                 codigoIntermedio.append(String.format(formato, "JNE", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             case ">":
                 codigoIntermedio.append(String.format(formato, "JG", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             case ">=":
                 codigoIntermedio.append(String.format(formato, "JGE", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             case "<":
                 codigoIntermedio.append(String.format(formato, "JL", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             case "<=":
                 codigoIntermedio.append(String.format(formato, "JLE", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
                 break;
             default:
                 codigoIntermedio.append(String.format(formato, "JMP", etiqueta, ""));
-                indiceComienzaEstatutos += 4;
+        }
+        if(tokens.stream().anyMatch(token -> token.equals("ELSE"))){
+            indiceComienzaEstatutos = tokens.indexOf("ELSE") + 1;
+            hayElse = true;
         }
     }
 
@@ -289,25 +322,6 @@ public class CodigoIntermedio {
 
     private void agregarOperacion(String instruction, String operand1, String operand2) {
         codigoIntermedio.append(String.format(formato, instruction, operand1, operand2));
-    }
-
-    public HashMap<String, Variables> getPuntoCodeDatos() {
-        return PuntoCodeDatos;
-    }
-
-    private boolean esNumeroAL(String numero) {
-        int valor = Integer.parseInt(numero);
-        return valor >= 0 && valor <= 255;
-    }
-
-    private boolean esNumeroAX(String numero) {
-        int valor = Integer.parseInt(numero);
-        return valor >= 0 && valor <= 65535;
-    }
-
-    private boolean esNumeroEAX(String numero) {
-        int valor = Integer.parseInt(numero);
-        return valor >= 0 && valor <= 4294967295L;
     }
 
     private void impresionAL(String numero1, String operador, String numero2) {
@@ -443,4 +457,25 @@ public class CodigoIntermedio {
 
 
     }
+    
+    private boolean esNumeroAL(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 255;
+    }
+
+    private boolean esNumeroAX(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 65535;
+    }
+
+    private boolean esNumeroEAX(String numero) {
+        int valor = Integer.parseInt(numero);
+        return valor >= 0 && valor <= 4294967295L;
+    }
+    public HashMap<String, Variables> getPuntoCodeDatos() {
+        return PuntoCodeDatos;
+    }
+
+
+    
 }
