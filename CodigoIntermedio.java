@@ -7,13 +7,11 @@ public class CodigoIntermedio {
 
     private StringBuilder codigoIntermedio = new StringBuilder();
     private String formato = "%-15s\t%-15s\t%-25s%n";
-    // Formato de columnas: Nombre - Tipo - Valor
     private int indiceComienzaEstatutos = 0;
-    private Boolean entroCondicional,acaboElse,hayElse;
+    private Boolean acaboElse,hayElse;
 
     public CodigoIntermedio(Semantico semantico, ArrayList<String> tokens, ArrayList<String> tokensNaturales) {
         this.tablaSimbolos = semantico.getTablaSimbolos();
-        this.entroCondicional = semantico.getEntroCondicional();
         this.indiceComienzaEstatutos = semantico.getIndiceEstatutos();
         this.tokens = tokens;
         this.tokensNaturales = tokensNaturales;
@@ -58,8 +56,6 @@ public class CodigoIntermedio {
         int completo = 0;
         try {
             while (indiceComienzaEstatutos < tokens.size()) {
-                // vericar si es una asignacion ID = Num + Num
-
                 if(completo == 2){
                     break;
                 }
@@ -76,27 +72,19 @@ public class CodigoIntermedio {
                     String tipo = PuntoCodeDatos.get(variable).getTipo();
                     String valor = tokensNaturales.get(indiceComienzaEstatutos + 2);
                     AsignacionOperacion(variable, tipo, valor);
-
                 }
 
-                // TOKEN: IF
                 if (tokens.get(indiceComienzaEstatutos).equals("IF")) {
                     String variable1 = tokensNaturales.get(indiceComienzaEstatutos + 1);
                     String comparador = tokensNaturales.get(indiceComienzaEstatutos + 2);
                     String variable2 = tokensNaturales.get(indiceComienzaEstatutos + 3);
                     Comparacion(variable1, comparador, variable2);
                     completo += 1;
-                    // if(!tokens.get(indiceComienzaEstatutos + 7).equals("ELSE")){
-                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
-                    // }else if(!tokens.get(indiceComienzaEstatutos + 6).equals("ELSE")){
-                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
-                    // }else if(!tokens.get(indiceComienzaEstatutos + 5).equals("ELSE")){
-                    //     codigoIntermedio.append(String.format(formato, "JMP", "CONTINUA", ""));
-                    // }
                     if(!tokens.stream().anyMatch(token -> token.equals("ELSE"))){
                         codigoIntermedio.append(String.format(formato, "\tCONTINUA:", "", ""));
                     }
                 }
+
                 if (tokens.get(indiceComienzaEstatutos).equals("ELSE")) {
                     if(acaboElse){
                         indiceComienzaEstatutos = tokens.size() - 1;
@@ -107,7 +95,9 @@ public class CodigoIntermedio {
                         indiceComienzaEstatutos = tokens.indexOf("IF") + 4;
                     }
                 }
+
                 if (tokens.get(indiceComienzaEstatutos).equals("print")) {
+                   
                     String numero1 = tokensNaturales.get(indiceComienzaEstatutos + 1);
                     String operador = tokensNaturales.get(indiceComienzaEstatutos + 2);
                     String numero2 = tokensNaturales.get(indiceComienzaEstatutos + 3);
@@ -115,7 +105,6 @@ public class CodigoIntermedio {
 
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("read")) {
-
                     String variable = tokensNaturales.get(indiceComienzaEstatutos + 1);
                     String tipo = PuntoCodeDatos.get(variable).getTipo();
 
@@ -133,11 +122,13 @@ public class CodigoIntermedio {
                         codigoIntermedio.append(String.format(formato, "MOV", variable + ",", "AL"));
                     }
                 }
+
                 if(tokens.get(indiceComienzaEstatutos).equals("}") && hayElse){
                     acaboElse = true;
                     indiceComienzaEstatutos -= 1;
                     codigoIntermedio.append(String.format(formato, "JMP", "FINAL", ""));
                 }
+
                 indiceComienzaEstatutos++;
             }
             codigoIntermedio.append(String.format(formato, "\tFINAL:", "", ""));
@@ -148,10 +139,6 @@ public class CodigoIntermedio {
             System.out.println("Error al crear el código intermedio: " + e.getMessage());
         }
     }
-
-    // Elaboracion de plantillas para el codigo intermedio, asignacion de valores a
-    // las variables, para
-    // condicion IF y ELSE , para leer datos y para imprimir datos
 
     public void AsignacionOperacion(String nombreVariable, String tipo, String valor) {
         String primerNumero = tokensNaturales.get(indiceComienzaEstatutos + 2);
@@ -177,13 +164,10 @@ public class CodigoIntermedio {
     public void impresionNumeroOperadorNumero(String numero1, String operador, String numero2) {
         boolean n1,n2;n1 = esNumeroAL(numero1);n2 = esNumeroAL(numero2);
         boolean n3,n4;n3 = esNumeroAX(numero1);n4 = esNumeroAX(numero2);
-        //boolean n5,n6;n5 = esNumeroEAX(numero1);n6 = esNumeroEAX(numero2);
         if (n1 && n2) {
             impresionAL(numero1, operador, numero2);
         } else if (n3 && n4) {
             impresionAX(numero1, operador, numero2);
-        } else {
-            impresionEAX(numero1, operador, numero2);
         }
     }
 
@@ -193,15 +177,12 @@ public class CodigoIntermedio {
             String tipo2 = PuntoCodeDatos.get(variable2).getTipo();
 
             if (tipo1.equals("DW") && tipo2.equals("DW")) {
-                // Both variables are 16-bit integers
                 codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable1));
                 codigoIntermedio.append(String.format(formato, "CMP", "AX,", variable2));
             } else if (tipo1.equals("DD") && tipo2.equals("DD")) {
-                // Both variables are 32-bit integers
                 codigoIntermedio.append(String.format(formato, "MOV", "EAX,", variable1));
                 codigoIntermedio.append(String.format(formato, "CMP", "EAX,", variable2));
             } else if ((tipo1.equals("DW") && tipo2.equals("DD")) || (tipo1.equals("DD") && tipo2.equals("DW"))) {
-                // Handle type conversion between 16-bit and 32-bit integers
                 if (tipo1.equals("DW")) {
                     codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable1));
                     codigoIntermedio.append(String.format(formato, "MOVZX", "EAX,", "AX"));
@@ -215,13 +196,11 @@ public class CodigoIntermedio {
 
                 }
             } else if (tipo1.equals("DB") && tipo2.equals("DB")) {
-                // Both variables are 8-bit values
                 codigoIntermedio.append(String.format(formato, "MOV", "AL,", variable1));
                 codigoIntermedio.append(String.format(formato, "CMP", "AL,", variable2));
             } else {
                 throw new ArithmeticException("Error: Tipos de datos incompatibles en la condición IF");
             }
-            // Add the appropriate jump instruction based on the comparator
             saltoComparacion(comparador, "CONTINUA");
             codigoIntermedio.append(String.format(formato, "", "", ""));
 
@@ -359,37 +338,6 @@ public class CodigoIntermedio {
 
 
     }
-    private void impresionEAX(String numero1, String operador, String numero2) {
-        codigoIntermedio.append(String.format(formato, "MOV", "EAX,", numero1));
-        if (operador.equals("+")) {
-            codigoIntermedio.append(String.format(formato, "ADD", "EAX,", numero2));
-        } else if (operador.equals("-")) {
-            codigoIntermedio.append(String.format(formato, "SUB", "EAX,", numero2));
-        } else if (operador.equals("*")) {
-            codigoIntermedio.append(String.format(formato, "IMUL", "EAX,", numero2));
-        } else if (operador.equals("/")) {
-            codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "0"));
-            codigoIntermedio.append(String.format(formato, "IDIV", "EAX,", numero2));
-        }
-
-        // Convertir EAX a decimal y mostrarlo
-        codigoIntermedio.append(String.format(formato, "MOV", "ECX,", "10"));
-        codigoIntermedio.append(String.format(formato, "XOR", "EDX,", "EDX"));
-        codigoIntermedio.append(String.format(formato, "DIV", "ECX", ""));
-        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
-        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
-        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
-        codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "EAX"));
-        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
-        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
-        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
-
-        codigoIntermedio.append(String.format(formato, "MOV", "EDX,", "EAX"));
-        codigoIntermedio.append(String.format(formato, "ADD", "EDX,", "30H"));
-        codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
-        codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
-    }
-    //pendiente 
     private void impresionResultado(String operador1,String operador, String operador2) {
         int resultado = Integer.parseInt(operador1) * Integer.parseInt(operador2);
         String resultadoStr = String.valueOf(resultado);
@@ -467,15 +415,7 @@ public class CodigoIntermedio {
         int valor = Integer.parseInt(numero);
         return valor >= 0 && valor <= 65535;
     }
-
-    private boolean esNumeroEAX(String numero) {
-        int valor = Integer.parseInt(numero);
-        return valor >= 0 && valor <= 4294967295L;
-    }
     public HashMap<String, Variables> getPuntoCodeDatos() {
         return PuntoCodeDatos;
     }
-
-
-    
 }
