@@ -34,7 +34,7 @@ public class CodigoIntermedio {
             String tipo = variable.getTipo();
             if (tipo.equals("string")) {
                 PuntoCodeDatos.put(key, new Variables("DB", "'$'"));
-                codigoIntermedio.append(String.format(formato, key, "DB", "'$'"));
+                codigoIntermedio.append(String.format(formato, key, "DB", "256 DUP ('$')"));
             } else if (tipo.equals("int")) {
                 PuntoCodeDatos.put(key, new Variables("DW", "?"));
                 codigoIntermedio.append(String.format(formato, key, "DW", "?"));
@@ -97,11 +97,18 @@ public class CodigoIntermedio {
                 }
 
                 if (tokens.get(indiceComienzaEstatutos).equals("print")) {
-                   
-                    String numero1 = tokensNaturales.get(indiceComienzaEstatutos + 1);
-                    String operador = tokensNaturales.get(indiceComienzaEstatutos + 2);
-                    String numero2 = tokensNaturales.get(indiceComienzaEstatutos + 3);
-                    impresionNumeroOperadorNumero(numero1, operador, numero2);
+                    boolean printNON,printID;printNON = impresionNumeroOperadorNumero();printID = impresionIDB();
+
+                    if(printNON){
+                        String numero1 = tokensNaturales.get(indiceComienzaEstatutos + 1);
+                        String operador = tokensNaturales.get(indiceComienzaEstatutos + 2);
+                        String numero2 = tokensNaturales.get(indiceComienzaEstatutos + 3);
+                        impresionNumeroOperadorNumero(numero1, operador, numero2);
+                    }else if(printID){
+                        String variable = tokensNaturales.get(indiceComienzaEstatutos + 1);
+                        impresionID(variable);
+                    }
+
 
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("read")) {
@@ -169,6 +176,48 @@ public class CodigoIntermedio {
         } else if (n3 && n4) {
             impresionAX(numero1, operador, numero2);
         }
+    }
+    //pendiente
+    private void impresionID(String variable){
+
+        String tipoSimbolo = tablaSimbolos.get(variable).getTipo();
+
+        if(tipoSimbolo.equals("int")){
+            int valor = 0;
+            codigoIntermedio.append(String.format(formato, "MOV", "AX,", valor));
+            codigoIntermedio.append(String.format(formato, "OR", "AX,", "00110000B"));
+
+            codigoIntermedio.append(String.format(formato, "MOV", "DL,", "AL"));
+            codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+            codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+
+        }else if(tipoSimbolo.equals("dou")){
+            //pendiente
+            double valor = 0.0;
+            codigoIntermedio.append(String.format(formato, "MOV", "AX,", valor));
+            codigoIntermedio.append(String.format(formato, "OR", "AX,", "00110000B"));
+
+            codigoIntermedio.append(String.format(formato, "MOV", "DL,", "AL"));
+            codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+            codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+        }else if(tipoSimbolo.equals("string")){
+            codigoIntermedio.append(String.format(formato, "MOV", "SI,", "OFFSET " + variable));
+            codigoIntermedio.append(String.format(formato, "MOV", "AH,", "09H"));
+            codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+        }
+        
+        // if (tipo.equals("DB")) {
+        //     codigoIntermedio.append(String.format(formato, "MOV", "SI,", "OFFSET " + variable));
+        //     codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BYTE PTR [SI]"));
+        //     codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
+        //     codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
+        // } else if (tipo.equals("DW")) {
+        //     codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable));
+        //     codigoIntermedio.append(String.format(formato, "CALL", "PRINTNUM", ""));
+        // } else if (tipo.equals("DD")) {
+        //     codigoIntermedio.append(String.format(formato, "MOV", "EAX,", variable));
+        //     codigoIntermedio.append(String.format(formato, "CALL", "PRINTNUM", ""));
+        // }
     }
 
     public void Comparacion(String variable1, String comparador, String variable2) {
@@ -415,6 +464,20 @@ public class CodigoIntermedio {
         int valor = Integer.parseInt(numero);
         return valor >= 0 && valor <= 65535;
     }
+
+    private boolean impresionNumeroOperadorNumero(){
+        if(tokens.get(indiceComienzaEstatutos+1).equals("Num")&& tokens.get(indiceComienzaEstatutos + 3).equals("Num")) {
+            return true;
+        }
+        return false;
+    }
+    private boolean impresionIDB(){
+        if(tokens.get(indiceComienzaEstatutos+1).equals("ID")){
+            return true;
+        }
+        return false;
+    }
+
     public HashMap<String, Variables> getPuntoCodeDatos() {
         return PuntoCodeDatos;
     }

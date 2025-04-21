@@ -226,7 +226,6 @@ public class Ui extends JFrame {
     }
 
     public void analizarCodigoIntermedio() throws Exception {
-        String codigo = areaCodigo.getText();
         try {
             areaCodigoData.setText("");
             consola.setText("");
@@ -236,8 +235,6 @@ public class Ui extends JFrame {
             System.out.println("naturalTokens: " + naturalTokens.toString());
             semantico = new Semantico(tiposTokens, naturalTokens);
             semantico.AnalizarTokens();
-            boolean condicional = semantico.getEntroCondicional();
-            int indiceEstatutos = semantico.getIndiceEstatutos();
             CodigoIntermedio codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
             // semantico.AnalizarTokens();
             // tabla = semantico.getTablaSimbolos();

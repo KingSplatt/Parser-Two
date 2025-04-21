@@ -21,7 +21,6 @@ public class Semantico extends IOException {
                     String nombreVariable = tokensNaturales.get(indiceAnalizar);
                     String tipodedato = "";
                     double valorFinal = 0.0;
-                    boolean esOperacion = false;
 
                     // Verificar si el siguiente token es un tipo de dato
                     if (indiceAnalizar + 1 < tokens.size()) {
@@ -55,12 +54,10 @@ public class Semantico extends IOException {
                                     // Asignar el valor del ID actual al ID asignado
                                     String valorAsignado = tablaSimbolos.get(idAsignado).getValorStr();
                                     tablaSimbolos.get(nombreVariable).setValorStr(valorAsignado);
-                                    esOperacion = false;
                                     indiceAnalizar += 2;
                                 } else {
                                     String valorAsignado = tokensNaturales.get(indiceAnalizar + 2);
                                     tablaSimbolos.get(nombreVariable).setValorStr(valorAsignado);
-                                    esOperacion = false;
                                     indiceAnalizar += 2;
                                 }
                             } else {
@@ -79,7 +76,6 @@ public class Semantico extends IOException {
                                                 + " de tipo: " + tipodedato + " un ID de tipo: " + tipoAsignado);
                                     }
                                     valorFinal = buscarValorVariableDouble(idAsignado);
-                                    esOperacion = true;
                                     indiceAnalizar += 2;
                                 } else {
                                     throw new Exception("Error: Variable no declarada: " + idAsignado);
@@ -87,7 +83,6 @@ public class Semantico extends IOException {
                             } else {
                                 int j = indiceAnalizar + 2; // Posición después del '='
                                 valorFinal = procesarExpresion(j);
-                                esOperacion = true;
                                 String tipoDato = tablaSimbolos.get(nombreVariable).getTipo();
                                 if (tipoDato.equals("int")) {
                                     tablaSimbolos.get(nombreVariable).setValorInt((int) valorFinal);
@@ -107,6 +102,11 @@ public class Semantico extends IOException {
                     boolean resultado = procesarCondicional(j);
                     if (!resultado) {
                         int indiceElse = tokens.indexOf("ELSE");
+                        if(indiceElse == -1) {
+                            int indiceLlaveCierre = tokens.indexOf("}");
+                            indiceAnalizar = indiceLlaveCierre;
+                            continue;
+                        }
                         int nuevoIndice = indiceElse + 1;
                         String tipo = tablaSimbolos.get(tokensNaturales.get(indiceAnalizar + 1)).getTipo();
                         indiceAnalizar = nuevoIndice;
@@ -133,11 +133,10 @@ public class Semantico extends IOException {
                             entroCondicional = false;
                         }
                     } else {
-                        indiceAnalizar += 4;
-                        String tipoToken = tablaSimbolos.get(tokensNaturales.get(indiceAnalizar + 1)).getTipo();
-                        String tipo = tablaSimbolos.get(tokensNaturales.get(indiceAnalizar + 1)).getTipo();
-
-                        if (tipoToken.equals("ID")) {
+                        indiceAnalizar += 5;
+                        
+                        if (tokens.get(indiceAnalizar).equals("ID")) {
+                            String tipo = tablaSimbolos.get(tokensNaturales.get(indiceAnalizar + 1)).getTipo();
                             System.out.println("Resultado: " + valorFinal);
                             valorFinal = procesarExpresion(indiceAnalizar + 3);
                             if (tipo.equals("int")) {
@@ -151,15 +150,18 @@ public class Semantico extends IOException {
 
                             }
                             entroCondicional = true;
-                        } else if (tipoToken.equals("print")) {
-                            valorFinal = procesarExpresion(indiceAnalizar + 2);
-                            System.out.println("Resultado: " + valorFinal);
+                        } else if (tokens.get(indiceAnalizar).equals("print")) {
+                            procesarPrint();
                             entroCondicional = true;
-                        } else if (tipoToken.equals("read")) {
+                        } else if (tokens.get(indiceAnalizar).equals("read")) {
                             indiceAnalizar += 3;
                             entroCondicional = true;
                         }
                     }
+                }
+                //pendiente
+                if (tokens.get(indiceAnalizar).equals("print")) {
+                    procesarPrint();
                 }
             }
 
@@ -237,8 +239,11 @@ public class Semantico extends IOException {
 
                     }
 
-                    if (tipo1.equals("int") && tipo2.equals("string")) {
+                    if ((tipo1.equals("int") && tipo2.equals("string")) || (tipo1.equals("string") && tipo2.equals("int"))) {
                         throw new Exception("Error: No puedes comparar un int con un string");
+                    }
+                    if((tipo1.equals("dou") && tipo2.equals("string")) || (tipo1.equals("string") && tipo2.equals("dou"))){
+                        throw new Exception("Error: No puedes comparar un dou con un string");
                     }
                     if (tipo1.equals(tipo2)) {
                         return true;
@@ -292,16 +297,27 @@ public class Semantico extends IOException {
         return 0.0;
     }
 
-    public void AnalizarValorTokens() {
-        System.out.println("Tabla de símbolos:");
-        tablaSimbolos.forEach((key, value) -> {
-            System.out.println("Nombre: " + key + " Tipo: " + value.getTipo() +
-                    " Valor (int): " + value.getValorInt() +
-                    " Valor (double): " + value.getValorDouble() +
-                    " Valor (string): " + value.getValorStr() +
-                    " Hex: " + value.getValorHex() +
-                    " Bin: " + value.getValorBin());
-        });
+    private void procesarPrint() throws Exception {
+        try {
+            if(tokens.get(indiceAnalizar+1) == "ID"){
+                String token = tokensNaturales.get(indiceAnalizar + 1);
+                Variables var = tablaSimbolos.get(token);
+                if (var == null) {
+                    throw new Exception("Error: Variable no declarada: " + token);
+                }
+                indiceAnalizar += 2;
+            
+            }else if((tokens.get(indiceAnalizar+1) == "Num" && tokens.get(indiceAnalizar+3) == "ID") ||
+                    (tokens.get(indiceAnalizar+1) == "ID" && tokens.get(indiceAnalizar+3) == "Num")||
+                    (tokens.get(indiceAnalizar+1) == "FRACC" && tokens.get(indiceAnalizar+3) == "ID")||
+                    (tokens.get(indiceAnalizar+1) == "ID" && tokens.get(indiceAnalizar+3) == "FRACC")){
+                throw new Exception("Error: No puedes imprimir un numero y una variable al mismo tiempo");
+            }else {
+                indiceAnalizar += 3;
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     public HashMap<String, Variables> getTablaSimbolos() {
