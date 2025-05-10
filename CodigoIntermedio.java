@@ -3,7 +3,7 @@ import java.util.HashMap;
 
 public class CodigoIntermedio {
     private ArrayList<String> tokens, tokensNaturales;
-    private HashMap<String, Variables> PuntoCodeDatos, tablaSimbolos;
+    private HashMap<String, Variables> CodigoIntermedioDatos, tablaSimbolos;
 
     private StringBuilder codigoIntermedio = new StringBuilder();
     private String formato = "%-15s\t%-15s\t%-25s%n";
@@ -15,7 +15,7 @@ public class CodigoIntermedio {
         this.indiceComienzaEstatutos = semantico.getIndiceEstatutos();
         this.tokens = tokens;
         this.tokensNaturales = tokensNaturales;
-        this.PuntoCodeDatos = new HashMap<String, Variables>();
+        this.CodigoIntermedioDatos = new HashMap<String, Variables>();
         this.acaboElse = false;
         this.hayElse = false;
     }
@@ -33,13 +33,13 @@ public class CodigoIntermedio {
             Variables variable = tablaSimbolos.get(key);
             String tipo = variable.getTipo();
             if (tipo.equals("string")) {
-                PuntoCodeDatos.put(key, new Variables("DB", "'$'"));
+                CodigoIntermedioDatos.put(key, new Variables("DB", "'$'"));
                 codigoIntermedio.append(String.format(formato, key, "DB", "256 DUP ('$')"));
             } else if (tipo.equals("int")) {
-                PuntoCodeDatos.put(key, new Variables("DW", "?"));
+                CodigoIntermedioDatos.put(key, new Variables("DW", "?"));
                 codigoIntermedio.append(String.format(formato, key, "DW", "?"));
             } else if (tipo.equals("dou")) {
-                PuntoCodeDatos.put(key, new Variables("DD", "?"));
+                CodigoIntermedioDatos.put(key, new Variables("DD", "?"));
                 codigoIntermedio.append(String.format(formato, key, "DD", "?"));
             }
         }
@@ -69,7 +69,7 @@ public class CodigoIntermedio {
                 if (tokens.get(indiceComienzaEstatutos).equals("ID")
                         && tokens.get(indiceComienzaEstatutos + 1).equals("=")) {
                     String variable = tokensNaturales.get(indiceComienzaEstatutos);
-                    String tipo = PuntoCodeDatos.get(variable).getTipo();
+                    String tipo = CodigoIntermedioDatos.get(variable).getTipo();
                     String valor = tokensNaturales.get(indiceComienzaEstatutos + 2);
                     AsignacionOperacion(variable, tipo, valor);
                 }
@@ -113,7 +113,7 @@ public class CodigoIntermedio {
                 }
                 if (tokens.get(indiceComienzaEstatutos).equals("read")) {
                     String variable = tokensNaturales.get(indiceComienzaEstatutos + 1);
-                    String tipo = PuntoCodeDatos.get(variable).getTipo();
+                    String tipo = CodigoIntermedioDatos.get(variable).getTipo();
 
                     if (tipo.equals("int")) {
                         codigoIntermedio.append(String.format(formato, "MOV", "AH,", "01"));
@@ -222,8 +222,8 @@ public class CodigoIntermedio {
 
     public void Comparacion(String variable1, String comparador, String variable2) {
         try {
-            String tipo1 = PuntoCodeDatos.get(variable1).getTipo();
-            String tipo2 = PuntoCodeDatos.get(variable2).getTipo();
+            String tipo1 = CodigoIntermedioDatos.get(variable1).getTipo();
+            String tipo2 = CodigoIntermedioDatos.get(variable2).getTipo();
 
             if (tipo1.equals("DW") && tipo2.equals("DW")) {
                 codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable1));
@@ -291,50 +291,67 @@ public class CodigoIntermedio {
     public void asignacionDW(String primerNumero, String operador, String segundoNumero, String valor,
             String nombreVariable) {
         if (operador.equals("+")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) + Integer.parseInt(segundoNumero));
+            System.out.println(valorOperacion);
             agregarOperacion("MOV", "AX,", primerNumero);
             agregarOperacion("ADD", "AX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "AX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DW", valorOperacion));
         } else if (operador.equals("-")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) - Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "AX,", primerNumero);
             agregarOperacion("SUB", "AX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "AX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DW", valorOperacion));
         } else if (operador.equals("*")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) * Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "AX,", primerNumero);
             agregarOperacion("IMUL", "AX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "AX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DW", valorOperacion));
         } else if (operador.equals("/")) {
             if (segundoNumero.equals("0")) {
                 throw new ArithmeticException("Error: División por cero no permitida.");
             }
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) / Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "AX,", primerNumero);
             agregarOperacion("MOV", "DX,", "0");
             agregarOperacion("IDIV", "AX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "AX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DW", valorOperacion));
         }
     }
 
     public void asignacionDD(String primerNumero, String operador, String segundoNumero, String valor,
             String nombreVariable) {
         if (operador.equals("+")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) + Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "EAX,", primerNumero);
             agregarOperacion("ADD", "EAX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "EAX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DD", valorOperacion));
         } else if (operador.equals("-")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) - Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "EAX,", primerNumero);
             agregarOperacion("SUB", "EAX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "EAX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DD", valorOperacion));
         } else if (operador.equals("*")) {
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) * Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "EAX,", primerNumero);
             agregarOperacion("IMUL", "EAX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "EAX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DD", valorOperacion));
         } else if (operador.equals("/")) {
             if (segundoNumero.equals("0")) {
                 throw new ArithmeticException("Error: División por cero no permitida.");
             }
+            String valorOperacion = String.valueOf(Integer.parseInt(primerNumero) / Integer.parseInt(segundoNumero));
             agregarOperacion("MOV", "EAX,", primerNumero);
             agregarOperacion("MOV", "EDX,", "0");
             agregarOperacion("IDIV", "EAX,", segundoNumero);
             agregarOperacion("MOV", nombreVariable + ",", "EAX");
+            CodigoIntermedioDatos.put(nombreVariable, new Variables("DD", valorOperacion));
         }
     }
 
@@ -478,7 +495,7 @@ public class CodigoIntermedio {
         return false;
     }
 
-    public HashMap<String, Variables> getPuntoCodeDatos() {
-        return PuntoCodeDatos;
+    public HashMap<String, Variables> getCodigoIntermedioDatos() {
+        return CodigoIntermedioDatos;
     }
 }

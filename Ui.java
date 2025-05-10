@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Ui extends JFrame {
-    private JTextArea areaCodigo, consola, areaCodigoData;
-    private JButton btnTokens, btnEstatutos, btnSimbolos, btnCodigoObjeto;
+    private JTextArea areaCodigo, consola, areaCodigoIntermedio, areaCodigoObjeto;
+    private JButton btnTokens, btnEstatutos, btnSimbolos, btnCodigoIntermedio, btnCodigoObjeto;
     private JTable tablaTokens;
     private DefaultTableModel modeloTablaTokens, modeloTablaEst, modeloTablaSimbolos;
     private JFileChooser fileChooser;
@@ -16,6 +16,7 @@ public class Ui extends JFrame {
     private Parser parser;
     private miEscaner scanner;
     private Semantico semantico;
+    private CodigoIntermedio codigoIntermedio;
 
     public Ui() {
         setTitle("Lenguaje: Splatt");
@@ -44,7 +45,7 @@ public class Ui extends JFrame {
         fileChooser = new JFileChooser();
 
         // Panel principal con 2 columnas
-        JPanel panelCodigo = new JPanel(new GridLayout(0, 3, 10, 10));
+        JPanel panelCodigo = new JPanel(new GridLayout(0, 4, 10, 10));
 
         // area de codigo (izquierda)
         areaCodigo = new JTextArea();
@@ -105,14 +106,25 @@ public class Ui extends JFrame {
 
         // agregar un panel con codigo objeto de turbo gui assembler (.DATA)
         // Panel con boton de simbolos
+        JPanel panelCodigoIntermedio = new JPanel(new BorderLayout());
+        btnCodigoIntermedio = new JButton("C.I");
+        areaCodigoIntermedio = new JTextArea();
+        JScrollPane scrollCodigoData = new JScrollPane(areaCodigoIntermedio);
+        panelCodigoIntermedio.add(scrollCodigoData, BorderLayout.CENTER);
+        panelCodigoIntermedio.add(btnCodigoIntermedio, BorderLayout.NORTH);
+        // Hacer que el panel de código intermedio ocupe dos espacios en el GridLayout
+        panelCodigo.add(panelCodigoIntermedio);
+        // Añadir un panel vacío para ocupar el siguiente espacio y mantener el orden
+        panelCodigo.add(new JPanel());
+        
+        //pendiente agregar el panel de codigo objeto
         JPanel panelCodigoObjeto = new JPanel(new BorderLayout());
-        btnCodigoObjeto = new JButton(".C.I");
-        areaCodigoData = new JTextArea();
-        JScrollPane scrollCodigoData = new JScrollPane(areaCodigoData);
-        panelCodigoObjeto.add(scrollCodigoData, BorderLayout.CENTER);
+        btnCodigoObjeto = new JButton("Codigo Objeto");
+        areaCodigoObjeto = new JTextArea();
+        JScrollPane scrollCodigoObj = new JScrollPane(areaCodigoObjeto);
+        panelCodigoObjeto.add(scrollCodigoObj, BorderLayout.CENTER);
         panelCodigoObjeto.add(btnCodigoObjeto, BorderLayout.NORTH);
         panelCodigo.add(panelCodigoObjeto);
-
         // Eventos de botones
 
         btnTokens.addActionListener(e -> {
@@ -136,9 +148,16 @@ public class Ui extends JFrame {
                 e1.printStackTrace();
             }
         });
-        btnCodigoObjeto.addActionListener(e -> {
+        btnCodigoIntermedio.addActionListener(e -> {
             try {
                 analizarCodigoIntermedio();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        btnCodigoObjeto.addActionListener(e -> {
+            try {
+                analizarCodigoObjeto();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -227,7 +246,7 @@ public class Ui extends JFrame {
 
     public void analizarCodigoIntermedio() throws Exception {
         try {
-            areaCodigoData.setText("");
+            areaCodigoIntermedio.setText("");
             consola.setText("");
             ArrayList<String> tiposTokens = parser.getTokens();
             ArrayList<String> naturalTokens = parser.getTokensNaturales();
@@ -235,14 +254,45 @@ public class Ui extends JFrame {
             System.out.println("naturalTokens: " + naturalTokens.toString());
             semantico = new Semantico(tiposTokens, naturalTokens);
             semantico.AnalizarTokens();
-            CodigoIntermedio codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
+            codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
             // semantico.AnalizarTokens();
             // tabla = semantico.getTablaSimbolos();
             String codigoIntermedioData = codigoIntermedio.PuntoData();
             System.out.println("aaa" + codigoIntermedioData);
-            areaCodigoData.append(codigoIntermedioData);
+            areaCodigoIntermedio.append(codigoIntermedioData);
             consola.setText("Análisis semántico correcto");
             consola.setForeground(Color.BLUE);
+        } catch (Exception e) {
+            consola.setText(e.getMessage());
+            consola.setForeground(Color.RED);
+        }
+    }
+
+    public void analizarCodigoObjeto() throws Exception {
+        try {
+            areaCodigoObjeto.setText("");
+            consola.setText("sdf");
+            ArrayList<String> tiposTokens = parser.getTokens();
+            ArrayList<String> naturalTokens = parser.getTokensNaturales();
+            HashMap<String, Variables> tabla = new HashMap<String,Variables>();
+            codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
+            codigoIntermedio.PuntoData();
+            tabla = codigoIntermedio.getCodigoIntermedioDatos();
+            System.out.println("tabla: " + tabla.toString());
+            System.out.println(tabla.size());
+            for (String key : tabla.keySet()) {
+                Variables variable = tabla.get(key);
+                // verificar si el tipo de dato es un int o un dou
+                if (variable.getTipo().equals("int")) {
+                    areaCodigoObjeto.append(key + " " + variable.getValorInt() + "\n");
+                } else if (variable.getTipo().equals("dou")) {
+                    areaCodigoObjeto.append(key + " " + variable.getValorDouble() + "\n");
+                } else {
+                    areaCodigoObjeto.append(key + " " + variable.getValorStr() + "\n");
+                }
+            }
+
+
         } catch (Exception e) {
             consola.setText(e.getMessage());
             consola.setForeground(Color.RED);
