@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Ui extends JFrame {
-    private JTextArea areaCodigo, consola, areaCodigoIntermedio, areaCodigoObjeto;
-    private JButton btnTokens, btnEstatutos, btnSimbolos, btnCodigoIntermedio, btnCodigoObjeto;
+    private JTextArea areaCodigo, consola, areaCodigoIntermedio, areaCodigoObjetoData,areaCodigoObjetoCode;
+    private JButton btnTokens, btnEstatutos, btnSimbolos, btnCodigoIntermedio, btnCodigoObjetoData, btnCodigoObjetoCode;
     private JTable tablaTokens;
     private DefaultTableModel modeloTablaTokens, modeloTablaEst, modeloTablaSimbolos;
     private JFileChooser fileChooser;
@@ -112,19 +112,27 @@ public class Ui extends JFrame {
         JScrollPane scrollCodigoData = new JScrollPane(areaCodigoIntermedio);
         panelCodigoIntermedio.add(scrollCodigoData, BorderLayout.CENTER);
         panelCodigoIntermedio.add(btnCodigoIntermedio, BorderLayout.NORTH);
-        // Hacer que el panel de código intermedio ocupe dos espacios en el GridLayout
-        panelCodigo.add(panelCodigoIntermedio);
-        // Añadir un panel vacío para ocupar el siguiente espacio y mantener el orden
-        panelCodigo.add(new JPanel());
+        panelCodigo.add(panelCodigoIntermedio,4);
         
         //pendiente agregar el panel de codigo objeto
-        JPanel panelCodigoObjeto = new JPanel(new BorderLayout());
-        btnCodigoObjeto = new JButton("Codigo Objeto");
-        areaCodigoObjeto = new JTextArea();
-        JScrollPane scrollCodigoObj = new JScrollPane(areaCodigoObjeto);
-        panelCodigoObjeto.add(scrollCodigoObj, BorderLayout.CENTER);
-        panelCodigoObjeto.add(btnCodigoObjeto, BorderLayout.NORTH);
-        panelCodigo.add(panelCodigoObjeto);
+        JPanel panelCodigoObjetoData = new JPanel(new BorderLayout());
+        btnCodigoObjetoData = new JButton(".DATA");
+        areaCodigoObjetoData = new JTextArea();
+        JScrollPane scrollCodigoObj = new JScrollPane(areaCodigoObjetoData);
+        panelCodigoObjetoData.add(scrollCodigoObj, BorderLayout.CENTER);
+        panelCodigoObjetoData.add(btnCodigoObjetoData, BorderLayout.NORTH);
+        panelCodigo.add(panelCodigoObjetoData);
+
+        JPanel panelCodigoObjetoCode = new JPanel(new BorderLayout());
+        btnCodigoObjetoCode = new JButton(".CODE");
+        areaCodigoObjetoCode = new JTextArea();
+        JScrollPane scrollCodigoObjCode = new JScrollPane(areaCodigoObjetoCode);
+        panelCodigoObjetoCode.add(scrollCodigoObjCode, BorderLayout.CENTER);
+        panelCodigoObjetoCode.add(btnCodigoObjetoCode, BorderLayout.NORTH);
+        panelCodigo.add(panelCodigoObjetoCode);
+
+
+        
         // Eventos de botones
 
         btnTokens.addActionListener(e -> {
@@ -155,9 +163,16 @@ public class Ui extends JFrame {
                 e1.printStackTrace();
             }
         });
-        btnCodigoObjeto.addActionListener(e -> {
+        btnCodigoObjetoData.addActionListener(e -> {
             try {
-                analizarCodigoObjeto();
+                analizarCodigoObjetoData();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        btnCodigoObjetoCode.addActionListener(e -> {
+            try {
+                analizarCodigoObjetoCode();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -257,8 +272,8 @@ public class Ui extends JFrame {
             codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
             // semantico.AnalizarTokens();
             // tabla = semantico.getTablaSimbolos();
-            String codigoIntermedioData = codigoIntermedio.PuntoData();
-            System.out.println("aaa" + codigoIntermedioData);
+            Boolean flag = false;
+            String codigoIntermedioData = codigoIntermedio.PuntoData(flag);
             areaCodigoIntermedio.append(codigoIntermedioData);
             consola.setText("Análisis semántico correcto");
             consola.setForeground(Color.BLUE);
@@ -268,31 +283,44 @@ public class Ui extends JFrame {
         }
     }
 
-    public void analizarCodigoObjeto() throws Exception {
+    public void analizarCodigoObjetoData() throws Exception {
         try {
-            areaCodigoObjeto.setText("");
+            areaCodigoObjetoData.setText("");
             consola.setText("sdf");
             ArrayList<String> tiposTokens = parser.getTokens();
             ArrayList<String> naturalTokens = parser.getTokensNaturales();
-            HashMap<String, Variables> tabla = new HashMap<String,Variables>();
+            HashMap<String, Variables> tabla = new HashMap<String, Variables>();
             codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
-            codigoIntermedio.PuntoData();
+            Boolean flag = true;
+            String Code = codigoIntermedio.PuntoData(flag);
             tabla = codigoIntermedio.getCodigoIntermedioDatos();
-            System.out.println("tabla: " + tabla.toString());
-            System.out.println(tabla.size());
-            for (String key : tabla.keySet()) {
-                Variables variable = tabla.get(key);
-                // verificar si el tipo de dato es un int o un dou
-                if (variable.getTipo().equals("int")) {
-                    areaCodigoObjeto.append(key + " " + variable.getValorInt() + "\n");
-                } else if (variable.getTipo().equals("dou")) {
-                    areaCodigoObjeto.append(key + " " + variable.getValorDouble() + "\n");
-                } else {
-                    areaCodigoObjeto.append(key + " " + variable.getValorStr() + "\n");
-                }
-            }
+            CodigoObjeto codigoObjeto = new CodigoObjeto(Code, tabla);
+            codigoObjeto.TraducirData();
+            String codigoObjetoData = codigoObjeto.getCodigoMaquinaData();
+            areaCodigoObjetoData.append(codigoObjetoData);
+            consola.setText("Análisis semántico correcto");
+            
 
+        } catch (Exception e) {
+            consola.setText(e.getMessage());
+            consola.setForeground(Color.RED);
+        }
+    }
 
+    public void analizarCodigoObjetoCode() throws Exception {
+        try {
+            areaCodigoObjetoCode.setText("");
+            consola.setText("sdf");
+            ArrayList<String> tiposTokens = parser.getTokens();
+            ArrayList<String> naturalTokens = parser.getTokensNaturales();
+            HashMap<String, Variables> tabla = new HashMap<String, Variables>();
+            codigoIntermedio = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
+            tabla = codigoIntermedio.getCodigoIntermedioDatos();
+            //System.out.println("tabla: " + tabla.toString());
+            Boolean flag = false;
+            String Code = codigoIntermedio.PuntoData(flag);
+            CodigoObjeto codigoObjeto = new CodigoObjeto(Code, tabla);
+            codigoObjeto.TraducirCode();
         } catch (Exception e) {
             consola.setText(e.getMessage());
             consola.setForeground(Color.RED);

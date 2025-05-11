@@ -1,4 +1,5 @@
 public class Variables {
+    private String nombre;
     private String tipo;
     private String valorStr;
     private int valorInt;
@@ -7,7 +8,8 @@ public class Variables {
     private String valorBin;
 
     // Constructor para enteros
-    public Variables(String tipo, int valor) {
+    public Variables(String tipo, int valor, String nombre) {
+        this.nombre = nombre;
         this.tipo = tipo;
         this.valorInt = valor;
         this.valorDouble = valor;
@@ -16,7 +18,8 @@ public class Variables {
     }
 
     // Constructor para doubles
-    public Variables(String tipo, double valor) {
+    public Variables(String tipo, double valor, String nombre) {
+        this.nombre = nombre;
         this.tipo = tipo;
         this.valorDouble = valor;
         this.valorInt = (int) valor; // Truncamos el double a int
@@ -25,14 +28,16 @@ public class Variables {
     }
 
     // Constructor para strings
-    public Variables(String tipo, String valor) {
+    public Variables(String tipo, String valor, String nombre) {
+        this.nombre = nombre;
         this.tipo = tipo;
         this.valorStr = valor;
         // procesarValor(valor);
     }
 
     // Constructor para strings con representación hex/bin
-    public Variables(String tipo, String valor, String valorHex, String valorBin) {
+    public Variables(String tipo, String valor, String valorHex, String valorBin, String nombre) {
+        this.nombre = nombre;
         this.tipo = tipo;
         this.valorStr = valor;
         this.valorHex = valorHex;
@@ -90,6 +95,10 @@ public class Variables {
         return valorBin;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
     public void setValorStr(String valorStr) {
         this.valorStr = valorStr;
     }
@@ -110,9 +119,21 @@ public class Variables {
         this.valorBin = valorBin;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    
     @Override
     public String toString() {
-        return "Variables [tipo=" + tipo + ", valorStr=" + valorStr + ", valorInt=" + valorInt +
-                ", valorDouble=" + valorDouble + ", valorHex=" + valorHex + ", valorBin=" + valorBin + "]";
+        return "Variables{" +
+                "nombre='" + nombre + '\'' +
+                ", tipo='" + tipo + '\'' +
+                ", valorStr='" + valorStr + '\'' +
+                ", valorInt=" + valorInt +
+                ", valorDouble=" + valorDouble +
+                ", valorHex='" + valorHex + '\'' +
+                ", valorBin='" + valorBin + '\'' +
+                '}';
     }
+    
 }

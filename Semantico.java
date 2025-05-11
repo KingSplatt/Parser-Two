@@ -5,13 +5,15 @@ import java.util.HashMap;
 public class Semantico extends IOException {
     private ArrayList<String> tokens, tokensNaturales;
     private HashMap<String, Variables> tablaSimbolos;
+    private ArrayList<Variables> variables;
     private boolean entroCondicional = false;
     private int indiceAnalizar, indiceEstatutos = 0;
 
     public Semantico(ArrayList<String> tokensRecibidos, ArrayList<String> tokensNaturalesRecibidos) {
+        this.variables = new ArrayList<Variables>();
         this.tokens = tokensRecibidos;
         this.tokensNaturales = tokensNaturalesRecibidos;
-        this.tablaSimbolos = new HashMap<>();
+        this.tablaSimbolos = new HashMap<String,Variables>();
     }
 
     public void AnalizarTokens() throws Exception {
@@ -26,8 +28,9 @@ public class Semantico extends IOException {
                     if (indiceAnalizar + 1 < tokens.size()) {
                         String tipo = tokens.get(indiceAnalizar + 1);
                         if (tipo.equals("int") || tipo.equals("dou") || tipo.equals("string")) {
-                            Variables variable = new Variables(tipo, "");
+                            Variables variable = new Variables(tipo, "", nombreVariable);
                             tablaSimbolos.put(nombreVariable, variable);
+                            variables.add(variable);
                             tipodedato = tipo;
 
                             indiceAnalizar += 2;
@@ -322,6 +325,10 @@ public class Semantico extends IOException {
 
     public HashMap<String, Variables> getTablaSimbolos() {
         return tablaSimbolos;
+    }
+
+    public ArrayList<Variables> getVariables() {
+        return variables;
     }
 
     public Boolean getEntroCondicional() {

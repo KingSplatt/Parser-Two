@@ -24,7 +24,8 @@ public class Compilador {
         Semantico semantico = new Semantico(tiposTokens, naturalTokens);
         semantico.AnalizarTokens();
         CodigoIntermedio CI = new CodigoIntermedio(semantico, tiposTokens, naturalTokens);
-        String CII = CI.PuntoData();
+        Boolean flag = false;
+        String CII = CI.PuntoData(flag);
         System.out.println(CII);
     }
 }
