@@ -25,21 +25,6 @@ public class CodigoIntermedio {
         PuntoCode();
     }
 
-    // public void PuntoData() {
-    //     codigoIntermedio.append(String.format(formato, "", ".DATA", ""));
-    //     for (String key : tablaSimbolos.keySet()) {
-    //         Variables variable = tablaSimbolos.get(key);
-    //         String tipo = variable.getTipo();
-    //         if (tipo.equals("string")) {
-    //             codigoIntermedio.append(String.format(formato, key, "DB", "256 DUP ('$')"));
-    //         } else if (tipo.equals("int")) {
-    //             codigoIntermedio.append(String.format(formato, key, "DW", "?"));
-    //         } else if (tipo.equals("dou")) {
-    //             codigoIntermedio.append(String.format(formato, key, "DD", "?"));
-    //         }
-    //     }
-    // }
-
     public String PuntoData(Boolean paraData) {
         codigoIntermedio.append(String.format(formato, "", ".MODEL", "SMALL"));
         codigoIntermedio.append(String.format(formato, "", ".STACK", ""));
@@ -224,19 +209,6 @@ public class CodigoIntermedio {
             codigoIntermedio.append(String.format(formato, "MOV", "AH,", "09H"));
             codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
         }
-        
-        // if (tipo.equals("DB")) {
-        //     codigoIntermedio.append(String.format(formato, "MOV", "SI,", "OFFSET " + variable));
-        //     codigoIntermedio.append(String.format(formato, "MOV", "DL,", "BYTE PTR [SI]"));
-        //     codigoIntermedio.append(String.format(formato, "MOV", "AH,", "02H"));
-        //     codigoIntermedio.append(String.format(formato, "INT", "21H", ""));
-        // } else if (tipo.equals("DW")) {
-        //     codigoIntermedio.append(String.format(formato, "MOV", "AX,", variable));
-        //     codigoIntermedio.append(String.format(formato, "CALL", "PRINTNUM", ""));
-        // } else if (tipo.equals("DD")) {
-        //     codigoIntermedio.append(String.format(formato, "MOV", "EAX,", variable));
-        //     codigoIntermedio.append(String.format(formato, "CALL", "PRINTNUM", ""));
-        // }
     }
 
     public void Comparacion(String variable1, String comparador, String variable2) {

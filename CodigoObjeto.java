@@ -1,16 +1,13 @@
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Arrays;
 
 public class CodigoObjeto {
     private String codigoEnsamblador[];
     private StringBuilder codigoMaquinaCode, codigoMaquinaData;
-    private String nombreArchivo;
 
     private String formatoData = "%-10s %-10s\t%n";
     private String tipo = "";
-    private int contadorData=0, contadorCode=0;
+    private int contadorCode=0;
     private LinkedHashMap<String, String> etiquetas = new LinkedHashMap<>();
 
     private String[] registros = {
@@ -78,7 +75,6 @@ public class CodigoObjeto {
 
     public void TraducirCode() {
         System.out.println(codigoEnsamblador.length);
-        int direccionActual = 0;
         for(String linea : codigoEnsamblador) {
             linea = linea.trim();
             if (linea.isEmpty() || linea.startsWith(";")) {
@@ -218,8 +214,6 @@ public class CodigoObjeto {
             } else if (tipo1.equals("reg") && tipo2.equals("mem")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                Variables var = Var.get(origen);
-
                 String desplazamiento = Var.get(origen).getValorBin();
                 bytes = 2 + Var.get(origen).getValorBin().length()/8; // 2 bytes for MOV + 1 byte for displacement
                 String direccionHex = String.format("%04X", contadorCode);
@@ -482,7 +476,6 @@ public class CodigoObjeto {
                 }
             }
             if(tipo1.equals("reg") && tipo2.equals("reg")) {
-                String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
                 bytes = 3;
                 String direccionHex = String.format("%04X", contadorCode);
