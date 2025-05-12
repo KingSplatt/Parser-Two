@@ -131,6 +131,43 @@ public class Ui extends JFrame {
         panelCodigoObjetoCode.add(btnCodigoObjetoCode, BorderLayout.NORTH);
         panelCodigo.add(panelCodigoObjetoCode);
 
+        //Panel con la gramatica del lenguaje
+        JPanel panelGramatica = new JPanel(new BorderLayout());
+        JLabel lblGramatica = new JLabel("Gramatica:");
+        lblGramatica.setFont(new Font("Arial", Font.BOLD, 16));
+        lblGramatica.setHorizontalAlignment(SwingConstants.CENTER);
+        panelGramatica.add(lblGramatica, BorderLayout.NORTH);
+        JTextArea areaGramatica = new JTextArea(8, 1);
+        areaGramatica.setEditable(false);
+        areaGramatica.setText("P → D S EOF \r\n" + //
+                        "D → ID (int | string | dou ) ɛ ; D \r\n" + //
+                        "D → ɛ \r\n" + //
+                        "S → IF E {S} \r\n" + //
+                        "S → IF E {S} ELSE {S} \r\n" + //
+                        "S → ID = OPER \r\n" + //
+                        "S → Print OPER \r\n" + //
+                        "E → ID | D == ID | ID !== ID | ID > ID | ID >= ID | ID < ID | ID <= ID \r\n" + //
+                        "OPER → SUMA | RESTA | MULM | DIVM | ID \r\n" + //
+                        "SUMA → NUM + NUM | NUM + FRACC | FRACC + NUM | FRACC + FRACC  \r\n" + //
+                        "RESTA → NUM – NUM | NUM – FRACC | FRACC – NUM | FRACC – FRACC \r\n" + //
+                        "MULM → NUM * NUM | NUM * FRACC | FRACC * NUM | FRACC * FRACC \r\n" + //
+                        "DIVD → NUM / NUM | NUM / FRACC | FRACC / NUM | FRACC / FRACC \r\n" + //
+                        "ID → LETRA (LETRA|DIGITO)* \r\n" + //
+                        "NUM → DIGITOP (DIGITOP)* | DIGITO (DIGITO)* \r\n" + //
+                        "DIGITO → 0 | 1 | 2 | 3 | 5 | 6 | 7 | 8 | 9 \r\n" + //
+                        "DIGITOP → 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 \r\n" + //
+                        "FRACC → DIGITO(DIGITO)*.DIGITO(DIGITO)* \r\n" + //
+                        "CADENA → LETRA(LETRA)* \r\n" + //
+                        "LETRA → \r\n" + //
+                        "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s\r\n" + //
+                        " |t|u|v|w|x|y|z ");
+        JScrollPane scrollGramatica = new JScrollPane(areaGramatica);
+        areaGramatica.setLineWrap(true);
+        areaGramatica.setWrapStyleWord(true);
+        panelGramatica.add(scrollGramatica, BorderLayout.CENTER);
+        panelCodigo.add(panelGramatica, 4);
+        // Agregar paneles al panel princip
+
 
         
         // Eventos de botones
