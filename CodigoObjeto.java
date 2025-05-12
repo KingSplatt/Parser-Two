@@ -4,14 +4,11 @@ import java.util.LinkedHashMap;
 public class CodigoObjeto {
     private String codigoEnsamblador[];
     private StringBuilder codigoMaquinaCode, codigoMaquinaData;
-
     private String formatoData = "%-10s %-10s\t%n";
     private String tipo = "";
     private int contadorCode=0;
     private LinkedHashMap<String, String> etiquetas = new LinkedHashMap<>();
-
     private String[] registros = {
-
             "AX", "BX", "CX", "DX", "SI", "DI", "SP", "BP",
             "AL", "BL", "CL", "DL", "AH", "BH", "CH", "DH",
             "EAX", "EBX", "ECX", "EDX", "ESI", "EDI", "ESP", "EBP",
@@ -19,27 +16,11 @@ public class CodigoObjeto {
     private String[] flags = {
         "JE", "JZ", "JNE", "JNZ", "JL", "JGE", "JLE", "JG"
     };
-
     private String[] ignorar = {
         ".MODEL", "SMALL", ".STACK ", ".DATA", ".386", ".CODE", "MAIN", "PROC",
         "END", "ENDP", "STARTUP", ".EXIT", "ENDP", "NEAR", "FAR", "OFFSET",
     };
     private HashMap <String, Variables> Var; 
-
-    // private String[] instrucciones = {
-    //         "MOV", "ADD", "SUB", "MUL", "DIV", "CMP", "JMP", "JE", "JNE"
-    // };
-    // private String[] oo = {
-    //     "00", "01", "10", "11"
-    // };
-    // private String[] mmm = {
-    //     "000", "001", "010", "011", "100", "101", "110", "111"
-    // };
-    // private String[] rrr = {
-    //     "000", "001", "010", "011", "100", "101", "110", "111"
-    // };
-
-
     public CodigoObjeto(String codigoEnsamblador, HashMap<String, Variables> variables) {
         this.codigoEnsamblador = codigoEnsamblador.split("\\r?\\n");
         this.Var = variables;
@@ -53,7 +34,6 @@ public class CodigoObjeto {
             String tipo = variable.getTipo();
             String valor = "";
             int bytes = 0;
-
             if (tipo.equalsIgnoreCase("DB")) {
                 valor = "0000 0000";
                 bytes = 1;
@@ -64,7 +44,6 @@ public class CodigoObjeto {
                 valor = "0000 0000 0000 0000 0000 0000 0000 0000";
                 bytes = 4;
             }
-
             String direccionHexActual = String.format("%04X", direccionActual);
             String direccionBinActual = String.format("%16s", Integer.toBinaryString(direccionActual)).replace(' ', '0');
             Var.put(variable.getNombre(), new Variables(variable.getTipo(), variable.getValorStr(), direccionHexActual, direccionBinActual, variable.getNombre()));
@@ -80,7 +59,6 @@ public class CodigoObjeto {
             if (linea.isEmpty() || linea.startsWith(";")) {
                 continue;
             }
-            
             String[] partes = linea.split("\\s+",2);
             String instruccion = partes[0].toUpperCase();
             for (String ignora : ignorar) {
@@ -98,7 +76,6 @@ public class CodigoObjeto {
                 }
             }
             String operandos = (partes.length > 1) ? partes[1].replaceAll("\\s+", "") : "";
-
             String[] ops = operandos.split(",");
             System.out.println("Instruccion: " + instruccion);
             System.out.println("Operandos: " + operandos);
