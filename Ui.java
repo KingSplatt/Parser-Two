@@ -298,7 +298,8 @@ public class Ui extends JFrame {
             codigoObjeto.TraducirData();
             String codigoObjetoData = codigoObjeto.getCodigoMaquinaData();
             areaCodigoObjetoData.append(codigoObjetoData);
-            consola.setText("Análisis semántico correcto");
+            consola.setText("Generación de código objeto correcta (DATA)");
+            consola.setForeground(Color.BLUE);
             
 
         } catch (Exception e) {
@@ -320,7 +321,12 @@ public class Ui extends JFrame {
             Boolean flag = false;
             String Code = codigoIntermedio.PuntoData(flag);
             CodigoObjeto codigoObjeto = new CodigoObjeto(Code, tabla);
+            codigoObjeto.TraducirData();
             codigoObjeto.TraducirCode();
+            String codigoObjetoCode = codigoObjeto.getCodigoMaquinaCode();
+            areaCodigoObjetoCode.append(codigoObjetoCode);
+            consola.setText("Generación de código objeto correcta (CODE)");
+            consola.setForeground(Color.BLUE);
         } catch (Exception e) {
             consola.setText(e.getMessage());
             consola.setForeground(Color.RED);

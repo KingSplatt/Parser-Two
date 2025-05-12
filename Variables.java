@@ -42,26 +42,7 @@ public class Variables {
         this.valorStr = valor;
         this.valorHex = valorHex;
         this.valorBin = valorBin;
-        procesarValor(valor);
-    }
-
-    // Procesa el valor si es convertible a número
-    private void procesarValor(String valor) {
-        try {
-            if (valor.contains(".")) {
-                this.valorDouble = Double.parseDouble(valor);
-                this.valorInt = (int) this.valorDouble;
-            } else {
-                this.valorInt = Integer.parseInt(valor);
-                this.valorDouble = this.valorInt;
-            }
-            generarRepresentaciones(this.valorInt);
-        } catch (NumberFormatException e) {
-            this.valorInt = 0;
-            this.valorDouble = 0.0;
-            this.valorHex = "N/A";
-            this.valorBin = "N/A";
-        }
+        //procesarValor(valor);
     }
 
     // Genera las representaciones hex y bin
