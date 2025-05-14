@@ -5,8 +5,9 @@ public class CodigoObjeto {
     private String codigoEnsamblador[];
     private StringBuilder codigoMaquinaCode, codigoMaquinaData;
     private String formatoData = "%-10s %-10s\t%n";
+    private String formatoDataDos = "%-8s %-8s";
     private String tipo = "";
-    private int contadorCode=0;
+    private int contadorCode=0,direccionActual=0;
     private LinkedHashMap<String, String> etiquetas = new LinkedHashMap<>();
     private String[] registros = {
             "AX", "BX", "CX", "DX", "SI", "DI", "SP", "BP",
@@ -29,14 +30,15 @@ public class CodigoObjeto {
     }
 
     public void TraducirData() {
-        int direccionActual = 0;
         for (Variables variable : Var.values()) {
             String tipo = variable.getTipo();
             String valor = "";
+            String valorStr = variable.getValorStr();
+            System.out.println("aaa"+variable);
             int bytes = 0;
             if (tipo.equalsIgnoreCase("DB")) {
-                valor = "0000 0000";
-                bytes = 1;
+                duplicarString(variable);
+                continue;
             } else if (tipo.equalsIgnoreCase("DW")) {
                 valor = "0000 0000 0000 0000";
                 bytes = 2;
@@ -146,6 +148,20 @@ public class CodigoObjeto {
                         codigoMaquinaCode.append("\n");
                     }
                     break;
+                case "INT":
+                    codigoMaquinaCode.append(String.format(formatoData, String.format("%04X", contadorCode), "1100 1101 0010 0001"));
+                    contadorCode += 2;
+                    break;
+                case "OR":
+                    if(ops.length == 2) {
+                        traducirOR(ops[0], ops[1]);
+                        codigoMaquinaCode.append("\n");
+                    }
+                    break;
+                case "CBW":
+                    codigoMaquinaCode.append(String.format(formatoData, String.format("%04X", contadorCode), "1001 1000"));
+                    contadorCode += 1;
+                    break;
                 default:
                     break;
             }
@@ -157,6 +173,7 @@ public class CodigoObjeto {
         }
         //ultima direccion
         codigoMaquinaCode.append(String.format(formatoData, String.format("%04X", contadorCode), ""));
+        //codigoMaquinaCode.append(String.format(formatoData, String.format("%04X", contadorCode), ""));
         SegundaPasda();
     }
 
@@ -204,18 +221,34 @@ public class CodigoObjeto {
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 110"+w+ " 00 "+rrr+" 110 "+desplazamiento));
             } else if(tipo1.equals("mem") && tipo2.equals("inm")) {
                 String w = elegirWconVar(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 String desplazamiento = Var.get(destino).getValorBin();
                 bytes = 2 + Var.get(destino).getValorBin().length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1100 011"+w + " 00 "+"000"+" 110 "+datos+" "+desplazamiento));
+
+
             } else if(tipo1.equals("reg") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
-                bytes = 2;
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
+                bytes = 2 + datos.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1011 "+rrr+w+" "+datos));
             } else {
@@ -317,8 +350,15 @@ public class CodigoObjeto {
             } else if(tipo1.equals("reg") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 bytes = 2 + datos.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 000"+w + " 11 "+"101 "+rrr+" "+datos));
@@ -377,16 +417,30 @@ public class CodigoObjeto {
             } else if(tipo1.equals("reg") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 bytes = 2 + datos.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 000"+w + " 11 "+"101 "+rrr+" "+datos));
             } else if(tipo1.equals("mem") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 String desplazamiento = Var.get(destino).getValorBin();
                 bytes = 2 + datos.length()/8 + desplazamiento.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
@@ -465,16 +519,30 @@ public class CodigoObjeto {
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "0000 1111 1010 1111 "+ " 00 "+rrr+" "+"110 "+desplazamiento));
             } if(tipo1.equals("reg") && tipo2.equals("inm")) {
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 bytes = 2 + datos.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "0110 1001 "+ " 11 "+rrr+" "+"110 "+datos));
             } else if(tipo1.equals("mem") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 String desplazamiento = Var.get(destino).getValorBin();
                 bytes = 2 + datos.length()/8 + desplazamiento.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
@@ -565,15 +633,29 @@ public class CodigoObjeto {
             } else if(tipo1.equals("reg") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
                 String rrr = elegirRRR(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 bytes = 2 + datos.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
                 codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 000"+w + " 11 "+"111 "+rrr+" "+datos));
             } else if(tipo1.equals("mem") && tipo2.equals("inm")) {
                 String w = elegirW(destino, origen);
-                int valor = Integer.parseInt(origen);
-                String datos = intToBin(valor);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
                 String desplazamiento = Var.get(destino).getValorBin();
                 bytes = 2 + datos.length()/8 + desplazamiento.length()/8;
                 String direccionHex = String.format("%04X", contadorCode);
@@ -587,58 +669,189 @@ public class CodigoObjeto {
         }
     }
 
+    private void traducirOR(String destino, String origen) {
+        try {
+            int bytes = 0;
+            String tipo1 = "mem", tipo2 = "mem";
+            Boolean esNumero = esNumeroDecimal(origen);
+            Boolean esHex = esNumeroHexadecimal(origen);
+            Boolean esBin = esNumeroBinario(origen);
+            if (esNumero) {
+                tipo2 = "inm";
+            } else if (esHex) {
+                tipo2 = "inm";
+            } else if (esBin) {
+                tipo2 = "inm";
+            }
+            for (String reg : registros) {
+                if (destino.equalsIgnoreCase(reg)) {
+                    tipo1 = "reg";
+                }
+                if (origen.equalsIgnoreCase(reg)) {
+                    tipo2 = "reg";
+                }
+            }
+            if(tipo1.equals("reg") && tipo2.equals("reg")) {
+                String w = elegirW(destino, origen);
+                String rrr = elegirRRR(destino, origen);
+                String mmm = elegirMMM(origen);
+                bytes = 2;
+                String direccionHex = String.format("%04X", contadorCode);
+                codigoMaquinaCode.append(String.format(formatoData, direccionHex, "0000 100"+w+ " 11 "+rrr+" "+mmm));
+            } else if (tipo1.equals("reg") && tipo2.equals("mem")) {
+                String w = elegirW(destino, origen);
+                String rrr = elegirRRR(destino, origen);
+                String desplazamiento = Var.get(origen).getValorBin();
+                bytes = 2 + Var.get(origen).getValorBin().length()/8;
+                String direccionHex = String.format("%04X", contadorCode);
+                codigoMaquinaCode.append(String.format(formatoData, direccionHex, "0000 100"+w+ " 00 "+rrr+" 110 "+desplazamiento));
+            } else if (tipo1.equals("mem") && tipo2.equals("reg")) {
+                String w = elegirW(destino, origen);
+                String rrr = elegirRRR(destino, origen);
+                String desplazamiento = Var.get(destino).getValorBin();
+                bytes = 2 + Var.get(destino).getValorBin().length()/8;
+                String direccionHex = String.format("%04X", contadorCode);
+                codigoMaquinaCode.append(String.format(formatoData, direccionHex, "0000 100"+w+ " 00 "+rrr+" 110 "+desplazamiento));
+            } else if(tipo1.equals("reg") && tipo2.equals("inm")) {
+                String w = elegirW(destino, origen);
+                String rrr = elegirRRR(destino, origen);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
+                bytes = 2 + datos.length()/8;
+                String direccionHex = String.format("%04X", contadorCode);
+                codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 000"+w + " 11 "+"001 "+rrr+" "+datos));
+            } else if(tipo1.equals("mem") && tipo2.equals("inm")) {
+                String w = elegirW(destino, origen);
+                String rrr = elegirRRR(destino, origen);
+                String datos;
+                if (esHex) {
+                    datos = HextoBin(origen);
+                } else if(esBin) {
+                    datos = origen.replace("B", "");
+                }else{
+                    int valor = Integer.parseInt(origen);
+                    datos = intToBin(valor);
+                }
+                String desplazamiento = Var.get(destino).getValorBin();
+                bytes = 2 + datos.length()/8 + desplazamiento.length()/8;
+                String direccionHex = String.format("%04X", contadorCode);
+                codigoMaquinaCode.append(String.format(formatoData, direccionHex, "1000 000"+w + " 00 "+"001 "+rrr+" "+desplazamiento+" "+datos));
+            } else {
+                throw new Exception("Error en la instrucción OR: operandos no válidos");
+            }
+            contadorCode += bytes;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     //JMP corto PENDIETEE
     private void traducirJMP(String destino) {
-        codigoMaquinaCode.append(String.format(formatoData, "JMP", "1110 1011 "));
+        codigoMaquinaCode.append(String.format(formatoData, "JMP "+String.format("%04X",contadorCode ), "1110 1011 "));
+        int bytes = 4;
+        contadorCode += bytes;
         //pendiente desplazamiento
     }
 
     private void traducirSalto(String salto, String destino) {
         String cccc = elegirCCCC(salto);
-        codigoMaquinaCode.append(String.format(formatoData, salto, "0111 "+cccc+" "));
+        codigoMaquinaCode.append(String.format(formatoData, salto+" "+String.format("%04X",contadorCode), "0111 "+cccc+" "));
+        int bytes = 4;
+        contadorCode += bytes;
         //pendiente desplazamiento
     }
-private void SegundaPasda() {
-    StringBuilder nuevoCodigo = new StringBuilder();
-    String[] lineas = codigoMaquinaCode.toString().split("\\r?\\n");
+    private void SegundaPasda() {
+        StringBuilder nuevoCodigo = new StringBuilder();
+        String[] lineas = codigoMaquinaCode.toString().split("\\r?\\n");
 
-    for (String linea : lineas) {
-        linea = linea.trim();
-        if (linea.isEmpty()) continue;
+        for (String linea : lineas) {
+            linea = linea.trim();
+            if (linea.isEmpty()) continue;
 
-        String[] partes = linea.split("\\s+");
-        String instruccion = partes[0].toUpperCase();
-        String DireccionBinario = "";
-        // Verificar si es instrucción de salto
-        if (instruccion.equals("JMP") || instruccion.equals("JE") || instruccion.equals("JZ") ||
-            instruccion.equals("JNE") || instruccion.equals("JNZ") || instruccion.equals("JL") ||
-            instruccion.equals("JGE") || instruccion.equals("JLE") || instruccion.equals("JG")) {
+            String[] partes = linea.split("\\s+");
+            String instruccion = partes[0].toUpperCase();
+            String DireccionBinario = "";
+            // Verificar si es instrucción de salto
+            if (instruccion.equals("JMP") || instruccion.equals("JE") || instruccion.equals("JZ") ||
+                instruccion.equals("JNE") || instruccion.equals("JNZ") || instruccion.equals("JL") ||
+                instruccion.equals("JGE") || instruccion.equals("JLE") || instruccion.equals("JG")) {
 
-            if (partes.length > 1) {
-                String direccion = "";
-                for(String etiquetaKey : etiquetas.keySet()) {
-                        direccion = etiquetas.get(etiquetaKey);
-                        DireccionBinario = HextoBin(direccion);
-                        etiquetas.remove(etiquetaKey);
-                        break;
+                if (partes.length > 1) {
+                    String direccion = "";
+                    for(String etiquetaKey : etiquetas.keySet()) {
+                            direccion = etiquetas.get(etiquetaKey);
+                            DireccionBinario = HextoBin(direccion);
+                            etiquetas.remove(etiquetaKey);
+                            break;
+                    }
+                    nuevoCodigo.append(linea).append(" ").append(DireccionBinario).append("\n\n");
+                } else {
+                    nuevoCodigo.append(linea).append(" [ETIQUETA NO ENCONTRADA]\n");
                 }
-                nuevoCodigo.append(linea).append(" ").append(DireccionBinario).append("\n\n");
+
             } else {
-                nuevoCodigo.append(linea).append(" [ETIQUETA NO ENCONTRADA]\n");
+                nuevoCodigo.append(linea).append("\n");
+            }
+        }
+        codigoMaquinaCode = nuevoCodigo;
+
+        // Opcional: mostrar resultado
+        System.out.println("=== Código máquina actualizado ===");
+        System.out.println(codigoMaquinaCode.toString());
+    }
+
+    public void duplicarString(Variables var) {
+        try {
+            String valorS = var.getValorStr().trim(); // ejemplo: "256 DUP ('$')"
+            String[] partes = valorS.split("\\s+");
+
+            if (partes.length < 3 || !partes[1].equalsIgnoreCase("DUP")) {
+                System.err.println("Formato inválido: se esperaba 'n DUP (valor)' -> " + valorS);
+                return;
             }
 
-        } else {
-            nuevoCodigo.append(linea).append("\n");
+            int cantidad = Integer.parseInt(partes[0]);
+            String valorBruto = partes[2].replaceAll("[()']", "").trim(); // limpia paréntesis y comillas
+
+            if (valorBruto.isEmpty()) {
+                System.err.println("Valor a duplicar vacío.");
+                return;
+            }
+
+            char caracter = valorBruto.charAt(0); // ejemplo: '$'
+            int ascii = caracter;
+            String formatoDatas = "%-6s %-4s";
+            String formatoData = "%-15s %-1s";
+            String bin = String.format("%8s", Integer.toBinaryString(ascii)).replace(' ', '0');
+            StringBuilder lineaBinaria = new StringBuilder();
+
+            for (int i = 1; i <= cantidad; i++) {
+                if(i == 1) {
+                    lineaBinaria.append(String.format(formatoDatas, "", bin));
+                } else {
+                    lineaBinaria.append(String.format(formatoData, "", bin));
+                }
+                if(i % 3 == 0){
+                    lineaBinaria.append("\n");
+                }
+            }
+
+            codigoMaquinaData.append(String.format("%04X", direccionActual)).append(lineaBinaria.toString()).append("\n");
+            System.out.println(lineaBinaria.toString());
+            direccionActual += cantidad;
+        } catch (NumberFormatException e) {
+            System.err.println("Cantidad no válida para DUP: " + var.getValorStr());
+        } catch (Exception e) {
+            System.err.println("Error en duplicarString: " + e.getMessage());
         }
     }
-    codigoMaquinaCode = nuevoCodigo;
-
-    // Opcional: mostrar resultado
-    System.out.println("=== Código máquina actualizado ===");
-    System.out.println(codigoMaquinaCode.toString());
-}
-
-
     public String elegirW(String destino, String origen) {
         String regex = "(AX|BX|CX|DX)";
         if (destino.matches("(?i).*" + regex + ".*") || origen.matches("(?i).*" + regex + ".*")) {
@@ -737,11 +950,13 @@ private void SegundaPasda() {
     }
 
     public Boolean esNumeroHexadecimal(String valor) {
-        return valor.matches("0[xX][0-9a-fA-F]+");
+        // Acepta 0x..., 0X..., o termina en H/h (como ensamblador Intel)
+        return valor.matches("0[xX][0-9a-fA-F]+") || valor.matches("[0-9A-Fa-f]+[Hh]");
     }
 
     public Boolean esNumeroBinario(String valor) {
-        return valor.matches("0[bB][01]+");
+        // Acepta 0b..., 0B..., o termina en B/b (como ensamblador Intel)
+        return valor.matches("0[bB][01]+") || valor.matches("[01]+[Bb]");
     }
 
     public String intToHex(int valor) {
@@ -755,6 +970,7 @@ private void SegundaPasda() {
     public String HextoBin(String valor) {
         StringBuilder binario = new StringBuilder();
         for (char c : valor.toCharArray()) {
+            if(c == 'H') continue;
             int decimal = Character.digit(c, 16);
             String bin = Integer.toBinaryString(decimal);
             binario.append(String.format("%4s", bin).replace(' ', '0'));

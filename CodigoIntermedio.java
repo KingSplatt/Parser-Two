@@ -34,8 +34,8 @@ public class CodigoIntermedio {
             Variables variable = tablaSimbolos.get(key);
             String tipo = variable.getTipo();
             if (tipo.equals("string")) {
-                CodigoIntermedioDatos.put(key, new Variables("DB", "'$'",key));
-                codigoIntermedio.append(String.format(formato, key, "DB", "256 DUP ('$')"));
+                CodigoIntermedioDatos.put(key, new Variables("DB", "20 DUP ('$')",key));
+                codigoIntermedio.append(String.format(formato, key, "DB", "20 DUP ('$')"));
             } else if (tipo.equals("int")) {
                 CodigoIntermedioDatos.put(key, new Variables("DW", "?",key));
                 codigoIntermedio.append(String.format(formato, key, "DW", "?"));
